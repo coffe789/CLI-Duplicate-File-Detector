@@ -1,7 +1,7 @@
 #include "duplicates.h"
 #include<string.h>
 
-void listFiles(const char *rootPath)
+void listFiles(const char *rootPath, int *count)
 {
 	struct dirent *dp;
 	char path[PATH_BUFSIZE];
@@ -10,21 +10,20 @@ void listFiles(const char *rootPath)
 	if (dir == NULL)
 	{
 		return;	//Does not try to open files as directories & doesn't include directories it can't access
-		perror(""); printf("%s",rootPath);
-		exit(EXIT_FAILURE);
 	}
 
 	while ( (dp = readdir(dir)) != NULL)
 	{
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
+			*count += 1;
 			printf("%s\n", dp->d_name);
 
 			strcpy(path,rootPath);
 			strcat(path,"/");
 			strcat(path, dp->d_name);
 
-			listFiles(path);
+			listFiles(path,count);
 		}
 	}
 }
@@ -36,8 +35,11 @@ int main(int argc, char **argv)
 		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
 		exit(EXIT_FAILURE);
 	}
-	listFiles(argv[1]);
-//	printf("%s\n", strSHA2("."));
+	int count = 0;
+	listFiles(argv[1], &count);
+	printf("Total number of files: %d\n", count);
+
+	//printf("%s\n", strSHA2("."));
 //	int fileCount = 0;
 //	DIR *dir = opendir(argv[1]);	//Points to DIR
 //	if (dir == NULL){printf("Directory not found\n");exit(EXIT_FAILURE);}
