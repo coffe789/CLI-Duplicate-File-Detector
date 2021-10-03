@@ -31,6 +31,11 @@ void listFiles(const char *rootPath)
 
 int main(int argc, char **argv)
 {
+	if (argc < 2)
+	{
+		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
+		exit(EXIT_FAILURE);
+	}
 	listFiles(argv[1]);
 //	printf("%s\n", strSHA2("."));
 //	int fileCount = 0;
