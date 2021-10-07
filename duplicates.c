@@ -30,12 +30,14 @@ void listFiles(const char *rootPath, int *count)
 			strcpy(path,rootPath);
 			strcat(path,"/");
 			strcat(path, dp->d_name);
-//			pairList[pairListIndex].path = sprintf("%s", path);
-			//strcpy(strSHA2(path), pairList[pairListIndex].hash );
+			//pairList[pairListIndex].path = strdup(path);
+			strcpy(pairList[pairListIndex].path, path);
+			strcpy(pairList[pairListIndex].hash, strSHA2(path));
 
 
-			printf("%s\n", path);		//print file path
-			printf("%s\n", strSHA2(path)); //Print hash
+			//printf("%s\n", path);		//print file path
+			//printf("%s\n", strSHA2(path)); //Print hash
+			pairListIndex++;
 			listFiles(path,count);
 		}
 	}
@@ -53,6 +55,7 @@ int main(int argc, char **argv)
 	printf("Total number of files: %d\n", count);
 	for (int i = 0; i < pairListIndex; i++)
 	{
+		printf("%s\n", pairList[i].hash);
 		printf("%s\n", pairList[i].path);
 	}
 	
