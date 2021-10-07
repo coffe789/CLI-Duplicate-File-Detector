@@ -1,6 +1,15 @@
 #include "duplicates.h"
 #include<string.h>
 
+struct FileHashPair
+{
+	char path[1000];
+	char hash[256];
+};
+typedef struct FileHashPair FileHashPair;
+FileHashPair pairList[1000];
+int pairListIndex = 0;
+
 void listFiles(const char *rootPath, int *count)
 {
 	struct dirent *dp;
@@ -17,12 +26,16 @@ void listFiles(const char *rootPath, int *count)
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
 			*count += 1;
-			printf("%s\n", dp->d_name);
-
+			
 			strcpy(path,rootPath);
 			strcat(path,"/");
 			strcat(path, dp->d_name);
+//			pairList[pairListIndex].path = sprintf("%s", path);
+			//strcpy(strSHA2(path), pairList[pairListIndex].hash );
 
+
+			printf("%s\n", path);		//print file path
+			printf("%s\n", strSHA2(path)); //Print hash
 			listFiles(path,count);
 		}
 	}
@@ -38,8 +51,11 @@ int main(int argc, char **argv)
 	int count = 0;
 	listFiles(argv[1], &count);
 	printf("Total number of files: %d\n", count);
-
-	//printf("%s\n", strSHA2("."));
+	for (int i = 0; i < pairListIndex; i++)
+	{
+		printf("%s\n", pairList[i].path);
+	}
+	
 //	int fileCount = 0;
 //	DIR *dir = opendir(argv[1]);	//Points to DIR
 //	if (dir == NULL){printf("Directory not found\n");exit(EXIT_FAILURE);}
