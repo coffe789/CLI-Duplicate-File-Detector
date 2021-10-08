@@ -43,8 +43,28 @@ void listFiles(const char *rootPath, int *count)
 	}
 }
 
+
+int my_strcmp(const void *p1, const void *p2)
+{
+	char *str1 = (char*) malloc(64*sizeof(char));//64 is size of hash
+	char *str2 = (char*) malloc(64*sizeof(char));
+	strcpy(str1,((FileHashPair*)p1)->hash);
+	strcpy(str2,((FileHashPair*)p2)->hash);
+	int i = 0;
+	while (str1[i] !='\0' && str2[i] != '\0')
+	{
+		if (str1[i] < str2[i]) {free(str1);free(str2);return -1;}
+		if (str1[i] > str2[i]) {free(str1);free(str2);return 1;}
+		++i;
+	}
+	if (strlen(str1) < strlen(str2)) {free(str1);free(str2);return -1;}
+	if (strlen(str2) > strlen(str1)) {free(str1);free(str2);return 1;}
+	free(str1);free(str2);return 0;
+}
+
 int main(int argc, char **argv)
 {
+	int dupcount = 0;
 	if (argc < 2)
 	{
 		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
@@ -52,13 +72,20 @@ int main(int argc, char **argv)
 	}
 	int count = 0;
 	listFiles(argv[1], &count);
-	printf("Total number of files: %d\n", count);
-	for (int i = 0; i < pairListIndex; i++)
-	{
-		printf("%s\n", pairList[i].hash);
-		printf("%s\n", pairList[i].path);
+	qsort(pairList, pairListIndex, sizeof(FileHashPair),my_strcmp);
+	for (int i = 0; i < pairListIndex-1; i++)
+	{	
+		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
+		{
+			dupcount++;
+			printf("duplicate:\n%s\n", pairList[i+1].hash);
+			printf("%s\n", pairList[i+1].path);
+		}
 	}
-	
+	printf("%d\n",pairListIndex);
+	printf("Total number of files: %d\nDupcount: %d\n", count,dupcount);
+
+
 //	int fileCount = 0;
 //	DIR *dir = opendir(argv[1]);	//Points to DIR
 //	if (dir == NULL){printf("Directory not found\n");exit(EXIT_FAILURE);}
