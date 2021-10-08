@@ -10,6 +10,9 @@ typedef struct FileHashPair FileHashPair;
 FileHashPair pairList[1000];
 int pairListIndex = 0;
 
+char pathList[1000][1000];//1000 strings of size 1000
+int pathListIndex = 0;
+
 void listFiles(const char *rootPath, int *count)
 {
 	struct dirent *dp;
@@ -65,6 +68,7 @@ int my_strcmp(const void *p1, const void *p2)
 int main(int argc, char **argv)
 {
 	int dupcount = 0;
+	int lowestSize = 0;
 	int total_size = 0;
 	if (argc < 2)
 	{
@@ -78,6 +82,7 @@ int main(int argc, char **argv)
 	{
 		total_size += getFileSize(pairList[i].path);
 	}
+	strcpy(pathList[0],pairList[0].path);
 	for (int i = 0; i < pairListIndex-1; i++) //Count duplicates
 	{	
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
@@ -86,8 +91,17 @@ int main(int argc, char **argv)
 		//	printf("duplicate:\n%s\n", pairList[i+1].hash);
 		//	printf("%s\n", pairList[i+1].path);
 		}
+		else
+		{
+			strcpy(pathList[pathListIndex],pairList[i+1].path);
+			pathListIndex++;
+		}
 	}
-	printf("Total number of files: %d\nNumber of duplicate files: %d\nTotal file size: %d bytes\n", count,dupcount,total_size);
+	for (int i = 0; i <pathListIndex; i++)
+	{
+		lowestSize += getFileSize(pathList[i]);
+	}
+	printf("Total number of files: %d\nNumber of duplicate files: %d\nTotal file size: %d bytes\nSize without duplicates: %d bytes\n", count,dupcount,total_size,lowestSize);
 
 
 //	int fileCount = 0;
