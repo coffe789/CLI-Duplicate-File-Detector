@@ -7,14 +7,13 @@ struct FileHashPair
 	char hash[256];
 };
 typedef struct FileHashPair FileHashPair;
-FileHashPair pairList[1000];
-int pairListIndex = 0;
 
-void listFiles(const char *rootPath, int *count)
+void getFileList(const char *rootPath, FileHashPair *array, int *index)
 {
 	struct dirent *dp;
 	char path[PATH_BUFSIZE];
 	DIR *dir = opendir(rootPath);
+	
 
 	if (dir == NULL)
 	{
@@ -25,20 +24,19 @@ void listFiles(const char *rootPath, int *count)
 	{
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
-			*count += 1;
-			
 			strcpy(path,rootPath);
 			strcat(path,"/");
 			strcat(path, dp->d_name);
-			//pairList[pairListIndex].path = strdup(path);
-			strcpy(pairList[pairListIndex].path, path);
-			strcpy(pairList[pairListIndex].hash, strSHA2(path));
+		//printf("root path is %s\nindex is %d\npath is %s\n\n",rootPath,*index,path);
+			strcpy((array + (*index) * sizeof(FileHashPair))->path, path);
+			//printf("path is: %s\n",(array[*index]).path);
+			strcpy((array + *index * sizeof(FileHashPair))->hash, strSHA2(path));
 
 
-			//printf("%s\n", path);		//print file path
-			//printf("%s\n", strSHA2(path)); //Print hash
-			pairListIndex++;
-			listFiles(path,count);
+			(*index)+=1;
+			printf("%s\n",(array + (*index) * sizeof(FileHashPair))->path);
+			printf("%stest\n",path);//(array[0])->hash);
+			getFileList(path,array,index);
 		}
 	}
 }
@@ -46,12 +44,12 @@ void listFiles(const char *rootPath, int *count)
 
 int my_strcmp(const void *p1, const void *p2)
 {
-	char *str1 = (char*) malloc(64*sizeof(char));//64 is size of hash
+	char *str1 = (char*) malloc(64*sizeof(char));//Create space for the string. 64 is size of hash
 	char *str2 = (char*) malloc(64*sizeof(char));
-	strcpy(str1,((FileHashPair*)p1)->hash);
+	strcpy(str1,((FileHashPair*)p1)->hash);//Set the strings to the hashes we are comparing
 	strcpy(str2,((FileHashPair*)p2)->hash);
 	int i = 0;
-	while (str1[i] !='\0' && str2[i] != '\0')
+	while (str1[i] !='\0' && str2[i] != '\0')//my implementation of strcmp. Should probably just replace this with the lib function.
 	{
 		if (str1[i] < str2[i]) {free(str1);free(str2);return -1;}
 		if (str1[i] > str2[i]) {free(str1);free(str2);return 1;}
@@ -65,13 +63,15 @@ int my_strcmp(const void *p1, const void *p2)
 int main(int argc, char **argv)
 {
 	int dupcount = 0;
+	FileHashPair *pairList = malloc(1000*sizeof(FileHashPair));
+	int pairListIndex = 0;
 	if (argc < 2)
 	{
 		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
 		exit(EXIT_FAILURE);
 	}
 	int count = 0;
-	listFiles(argv[1], &count);
+	getFileList(argv[1], pairList,&pairListIndex);
 	qsort(pairList, pairListIndex, sizeof(FileHashPair),my_strcmp);
 	for (int i = 0; i < pairListIndex-1; i++)
 	{	
