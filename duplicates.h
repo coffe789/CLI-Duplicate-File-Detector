@@ -11,3 +11,4 @@ const int PATH_BUFSIZE = 1000;
 
 extern char *strSHA2(char *filename);
 extern int main(int argc, char **argv);
+extern long int getFileSize(char file_name[]);
