@@ -7,6 +7,8 @@
 #include<sys/stat.h>
 #include <stdlib.h>
 
+#define OPTLIST "Aaf:h:mlq"
+
 const int PATH_BUFSIZE = 1000;
 
 extern char *strSHA2(char *filename);

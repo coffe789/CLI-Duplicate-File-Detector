@@ -1,17 +1,56 @@
 #include "duplicates.h"
 #include<string.h>
+#include <unistd.h>
+#include <getopt.h>
 
 struct FileHashPair
 {
 	char path[1000];
 	char hash[256];
 };
+
 typedef struct FileHashPair FileHashPair;
 FileHashPair pairList[1000];
 int pairListIndex = 0;
 
 char pathList[1000][1000];//1000 strings of size 1000
 int pathListIndex = 0;
+
+void set_opts(int argc, char *argv[], char *path)
+{
+    int opt;
+    while ((opt = getopt(argc, argv, OPTLIST)) != -1)
+    {
+        switch (opt)
+        {
+        case 'a': //all files considered including . files
+            break;
+        case 'A': //indicates if using advanced options by exiting
+            exit(EXIT_FAILURE);//we are not
+        case 'f'://finds duplicates of argument file. Exits depending on if found
+	    printf("%s\n",optarg);
+            break;
+        case 'h'://find all files with hash arg. Exits depending on if found
+	    printf("%s\n",optarg);
+            break;
+        case 'l'://lists duplicates
+            break;
+        case 'm'://advanced
+            break;
+        case 'q'://no printing. Exit depending on if duplicates found
+            break;
+        }
+    }
+
+    // optind is for the extra arguments
+    // which are not parsed
+    for (; optind < argc; optind++)
+    {
+        //printf("extra arguments: %s\n", argv[optind]);
+	strcpy(path,argv[optind]);
+    }
+}
+
 
 void listFiles(const char *rootPath, int *count)
 {
@@ -67,6 +106,9 @@ int my_strcmp(const void *p1, const void *p2)
 
 int main(int argc, char **argv)
 {
+	char path[1000]; //path argument from terminal
+	set_opts(argc, argv, path);
+	printf("path is%s\n",path);
 	int dupcount = 0;
 	int lowestSize = 0;
 	int total_size = 0;
@@ -76,7 +118,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 	int count = 0;
-	listFiles(argv[1], &count);
+	listFiles(path, &count);
 	qsort(pairList, pairListIndex, sizeof(FileHashPair),my_strcmp);
 	for (int i = 0; i <pairListIndex; i++)
 	{

@@ -6,7 +6,7 @@
 
 #include <getopt.h>
 
-#define OPTLIST "Aafhmlq"
+#define OPTLIST "Aaf:h:mlq"
 
 int main(int argc, char *argv[])
 {
@@ -20,8 +20,10 @@ int main(int argc, char *argv[])
         case 'A': //return EXIT_SUCCESS or EXIT_FAIRLURE
             break;
         case 'f':
+	    printf("%s\n",optarg);
             break;
         case 'h':
+	    printf("%s\n",optarg);
             break;
         case 'l':
             break;
