@@ -6,6 +6,7 @@
 #include<sys/types.h>
 #include<sys/stat.h>
 #include <stdlib.h>
+#include<stdbool.h>
 
 #define OPTLIST "Aaf:h:mlq"
 

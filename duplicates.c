@@ -3,6 +3,9 @@
 #include <unistd.h>
 #include <getopt.h>
 
+bool a,A,f,h,l,m,q = false;//optional flags
+
+
 struct FileHashPair
 {
 	char path[1000];
@@ -16,6 +19,7 @@ int pairListIndex = 0;
 char pathList[1000][1000];//1000 strings of size 1000
 int pathListIndex = 0;
 
+//Sets optional flags, and sets path to the path argument
 void set_opts(int argc, char *argv[], char *path)
 {
     int opt;
@@ -24,34 +28,38 @@ void set_opts(int argc, char *argv[], char *path)
         switch (opt)
         {
         case 'a': //all files considered including . files
-            break;
+		a = true;
+        	break;
         case 'A': //indicates if using advanced options by exiting
-            exit(EXIT_FAILURE);//we are not
+        	exit(EXIT_FAILURE);//we are not
         case 'f'://finds duplicates of argument file. Exits depending on if found
-	    printf("%s\n",optarg);
-            break;
+		f = true;
+		printf("f in unimplemented, arg: %s\n",optarg);
+        	break;
         case 'h'://find all files with hash arg. Exits depending on if found
-	    printf("%s\n",optarg);
-            break;
+		h = true;
+		printf("h in unimplemented, arg: %s\n",optarg);
+        	break;
         case 'l'://lists duplicates
-            break;
+		l = true;
+        	break;
         case 'm'://advanced
-            break;
+		m = true;
+        	break;
         case 'q'://no printing. Exit depending on if duplicates found
-            break;
+		q = true;
+        	break;
         }
     }
 
-    // optind is for the extra arguments
-    // which are not parsed
+    // The path is an unparsed argument. If more than one is supplied, it will only take the last one
     for (; optind < argc; optind++)
     {
-        //printf("extra arguments: %s\n", argv[optind]);
 	strcpy(path,argv[optind]);
     }
 }
 
-
+// Fills pairList[] with all files, and sets count to #files
 void listFiles(const char *rootPath, int *count)
 {
 	struct dirent *dp;
@@ -67,12 +75,11 @@ void listFiles(const char *rootPath, int *count)
 	{
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
+			if (*(dp->d_name)=='.' && !a){continue;} //skip hidden files unless -a
 			*count += 1;
-			
 			strcpy(path,rootPath);
 			strcat(path,"/");
 			strcat(path, dp->d_name);
-			//pairList[pairListIndex].path = strdup(path);
 			strcpy(pairList[pairListIndex].path, path);
 			strcpy(pairList[pairListIndex].hash, strSHA2(path));
 
@@ -86,29 +93,21 @@ void listFiles(const char *rootPath, int *count)
 }
 
 
-int my_strcmp(const void *p1, const void *p2)
+int hashcmp(const void *p1, const void *p2)
 {
 	char *str1 = (char*) malloc(64*sizeof(char));//64 is size of hash
 	char *str2 = (char*) malloc(64*sizeof(char));
 	strcpy(str1,((FileHashPair*)p1)->hash);
 	strcpy(str2,((FileHashPair*)p2)->hash);
-	int i = 0;
-	while (str1[i] !='\0' && str2[i] != '\0')
-	{
-		if (str1[i] < str2[i]) {free(str1);free(str2);return -1;}
-		if (str1[i] > str2[i]) {free(str1);free(str2);return 1;}
-		++i;
-	}
-	if (strlen(str1) < strlen(str2)) {free(str1);free(str2);return -1;}
-	if (strlen(str2) > strlen(str1)) {free(str1);free(str2);return 1;}
-	free(str1);free(str2);return 0;
+	int cmp = strcmp(str1,str2);
+	free(str1);free(str2);
+	return cmp;
 }
 
 int main(int argc, char **argv)
 {
 	char path[1000]; //path argument from terminal
 	set_opts(argc, argv, path);
-	printf("path is%s\n",path);
 	int dupcount = 0;
 	int lowestSize = 0;
 	int total_size = 0;
@@ -118,12 +117,13 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 	int count = 0;
-	listFiles(path, &count);
-	qsort(pairList, pairListIndex, sizeof(FileHashPair),my_strcmp);
-	for (int i = 0; i <pairListIndex; i++)
+	listFiles(path, &count);//Fill PairList[]
+	qsort(pairList, pairListIndex, sizeof(FileHashPair),hashcmp);//sort PairList[]
+	for (int i = 0; i <pairListIndex; i++)//get total file size
 	{
 		total_size += getFileSize(pairList[i].path);
 	}
+
 	strcpy(pathList[0],pairList[0].path);
 	for (int i = 0; i < pairListIndex-1; i++) //Count duplicates
 	{	
@@ -144,25 +144,4 @@ int main(int argc, char **argv)
 		lowestSize += getFileSize(pathList[i]);
 	}
 	printf("Total number of files: %d\nNumber of duplicate files: %d\nTotal file size: %d bytes\nSize without duplicates: %d bytes\n", count,dupcount,total_size,lowestSize);
-
-
-//	int fileCount = 0;
-//	DIR *dir = opendir(argv[1]);	//Points to DIR
-//	if (dir == NULL){printf("Directory not found\n");exit(EXIT_FAILURE);}
-//	struct dirent *entry;
-//	while ((entry= readdir(dir))) //while entry is not NULL
-//	{
-//		char pathname[MAXPATHLEN];
-//		sprintf(pathname,"%s/%s",argv[1],entry->d_name);
-//		fileCount++;
-//		struct stat statinfo;
-//		if ((stat(pathname, &statinfo) != 0))
-//		{
-//			printf("err");
-//			exit(EXIT_FAILURE);
-//		}
-//		printf("%s\t",pathname);
-//	}
-//	closedir(dir);
-//	printf("%d files\n",fileCount);
 }
