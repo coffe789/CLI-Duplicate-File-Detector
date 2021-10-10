@@ -104,27 +104,12 @@ int hashcmp(const void *p1, const void *p2)
 	return cmp;
 }
 
-int main(int argc, char **argv)
+// Creates an array without duplicates, return dupcount
+int track_duplicates()
 {
-	char path[1000]; //path argument from terminal
-	set_opts(argc, argv, path);
-	int dupcount = 0;
-	int lowestSize = 0;
-	int total_size = 0;
-	if (argc < 2)
-	{
-		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
-		exit(EXIT_FAILURE);
-	}
-	int count = 0;
-	listFiles(path, &count);//Fill PairList[]
-	qsort(pairList, pairListIndex, sizeof(FileHashPair),hashcmp);//sort PairList[]
-	for (int i = 0; i <pairListIndex; i++)//get total file size
-	{
-		total_size += getFileSize(pairList[i].path);
-	}
-
 	strcpy(pathList[0],pairList[0].path);
+	pathListIndex++;
+	int dupcount = 0;
 	for (int i = 0; i < pairListIndex-1; i++) //Count duplicates
 	{	
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
@@ -139,9 +124,48 @@ int main(int argc, char **argv)
 			pathListIndex++;
 		}
 	}
+	return dupcount;
+}
+
+// Should put this in the same .c file as getFileSize()
+int getTotalFileSize()
+{
+	int totalSize = 0;
+	for (int i = 0; i <pairListIndex; i++)
+	{
+		totalSize += getFileSize(pairList[i].path);
+	}
+	return totalSize;
+}
+
+int getLowestFileSize()
+{
+	int lowestSize = 0;
 	for (int i = 0; i <pathListIndex; i++)
 	{
 		lowestSize += getFileSize(pathList[i]);
 	}
-	printf("Total number of files: %d\nNumber of duplicate files: %d\nTotal file size: %d bytes\nSize without duplicates: %d bytes\n", count,dupcount,total_size,lowestSize);
+	return lowestSize;
+}
+
+int main(int argc, char **argv)
+{
+	char path[1000]; //path argument from terminal
+	set_opts(argc, argv, path);
+	int dupcount;
+	int lowestSize;
+	int totalSize;
+	if (argc < 2)
+	{
+		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
+		exit(EXIT_FAILURE);
+	}
+	int count = 0;
+	listFiles(path, &count);//Fill PairList[]
+	qsort(pairList, pairListIndex, sizeof(FileHashPair),hashcmp);//sort PairList[]
+	dupcount = track_duplicates(); 
+	totalSize = getTotalFileSize();
+	lowestSize = getLowestFileSize();
+
+	printf("Total number of files: %d\nNumber of duplicate files: %d\nTotal file size: %d bytes\nSize without duplicates: %d bytes\n", count,dupcount,totalSize,lowestSize);
 }
