@@ -117,7 +117,11 @@ int track_duplicates()
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
 			dupcount++;
-			if (l)//list duplicates flag
+			if (q)
+			{
+				exit(EXIT_FAILURE);
+			}
+			if (l)
 			{
 				if(!isOnDupStreak)//The first in a set of duplicates isn't treated as one. This makes sure is is printed for l flag
 				{
@@ -135,6 +139,7 @@ int track_duplicates()
 			pathListIndex++;
 		}
 	}
+	if (q) exit(EXIT_SUCCESS);
 	if (l && dupcount != 0) printf("\n");
 	return dupcount;
 }
