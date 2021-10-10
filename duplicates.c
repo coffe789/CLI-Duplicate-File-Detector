@@ -119,7 +119,7 @@ int track_duplicates()
 
 	strcpy(pathList[0],pairList[0].path);
 	pathListIndex++;
-	if (f && strcmp(farg,pairList[0].hash)==0)//doesn't check index 0 otherwise
+	if (f && strcmp(farg,pairList[0].hash)==0)//doesn't check index 0 otherwise. Can't be bothered to think about it, but I don't think this check should even be here...
 	{
 		fSuccess = true;
 		printf("%s\t",pairList[0].path);
@@ -184,6 +184,21 @@ int getLowestFileSize()
 	return lowestSize;
 }
 
+//relates to -h flag. Assume -h is true.
+void findHashMatch()
+{
+	bool exitVal = EXIT_FAILURE;
+	for (int i = 0; i < pairListIndex; i++)
+	{
+		if (strcmp(harg,pairList[i].hash)==0)
+		{
+			printf("%s\n",pairList[i].path);
+			exitVal = EXIT_SUCCESS;
+		}
+	}
+	exit(exitVal);
+}
+
 int main(int argc, char **argv)
 {
 	char path[1000]; //path argument from terminal
@@ -199,6 +214,7 @@ int main(int argc, char **argv)
 	int count = 0;
 	listFiles(path, &count);//Fill PairList[]
 	qsort(pairList, pairListIndex, sizeof(FileHashPair),hashcmp);//sort PairList[]
+	if (h) findHashMatch();
 	dupcount = track_duplicates(); 
 	totalSize = getTotalFileSize();
 	lowestSize = getLowestFileSize();
