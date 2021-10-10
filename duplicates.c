@@ -4,7 +4,8 @@
 #include <getopt.h>
 
 bool a,A,f,h,l,m,q = false;//optional flags
-
+char farg[1000];
+char harg[1000];
 
 struct FileHashPair
 {
@@ -34,11 +35,11 @@ void set_opts(int argc, char *argv[], char *path)
         	exit(EXIT_FAILURE);//we are not
         case 'f'://finds duplicates of argument file. Exits depending on if found
 		f = true;
-		printf("f in unimplemented, arg: %s\n",optarg);
+		strcpy(farg,strSHA2(optarg));
         	break;
         case 'h'://find all files with hash arg. Exits depending on if found
 		h = true;
-		printf("h in unimplemented, arg: %s\n",optarg);
+		strcpy(harg,optarg);
         	break;
         case 'l'://lists duplicates
 		l = true;
@@ -55,6 +56,11 @@ void set_opts(int argc, char *argv[], char *path)
     // The path is an unparsed argument. If more than one is supplied, it will only take the last one
     for (; optind < argc; optind++)
     {
+	if (opendir(argv[optind])==NULL)
+	{
+		printf("'%s' is an Invalid Path!\n",argv[optind]);
+		exit(EXIT_FAILURE);
+	}
 	strcpy(path,argv[optind]);
     }
 }
