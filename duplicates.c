@@ -115,10 +115,15 @@ int track_duplicates()
 {
 	bool isOnDupStreak = false;
 	bool fSuccess = false;
+	int dupcount = 0;
 
 	strcpy(pathList[0],pairList[0].path);
 	pathListIndex++;
-	int dupcount = 0;
+	if (f && strcmp(farg,pairList[0].hash)==0)//doesn't check index 0 otherwise
+	{
+		fSuccess = true;
+		printf("%s\t",pairList[0].path);
+	}
 	for (int i = 0; i < pairListIndex-1; i++) //Count duplicates
 	{	
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
