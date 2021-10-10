@@ -136,7 +136,7 @@ int track_duplicates()
 			if (f && strcmp(farg,pairList[i+1].hash)==0)
 			{
 				fSuccess = true;
-				printf("%s\t",pairList[i+1].path);
+				printf("%s\n",pairList[i+1].path);
 			}
 			if (l)
 			{
@@ -157,8 +157,8 @@ int track_duplicates()
 		}
 	}
 	if (q) exit(EXIT_SUCCESS);
-	if ((l && dupcount != 0) || (f && dupcount !=0)) printf("\n");
 	if (fSuccess) exit(EXIT_SUCCESS);
+	if ((l && dupcount != 0)) printf("\n");
 	if (f && !fSuccess) exit(EXIT_FAILURE);
 	return dupcount;
 }
