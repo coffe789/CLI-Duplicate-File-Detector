@@ -107,6 +107,8 @@ int hashcmp(const void *p1, const void *p2)
 // Creates an array without duplicates, return dupcount
 int track_duplicates()
 {
+	bool isOnDupStreak = false;
+
 	strcpy(pathList[0],pairList[0].path);
 	pathListIndex++;
 	int dupcount = 0;
@@ -115,15 +117,25 @@ int track_duplicates()
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
 			dupcount++;
-		//	printf("duplicate:\n%s\n", pairList[i+1].hash);
-		//	printf("%s\n", pairList[i+1].path);
+			if (l)//list duplicates flag
+			{
+				if(!isOnDupStreak)//The first in a set of duplicates isn't treated as one. This makes sure is is printed for l flag
+				{
+					printf("%s\t", pairList[i].path);
+				}
+				isOnDupStreak = true;
+				printf("%s\t", pairList[i+1].path);
+			}
 		}
 		else
 		{
+			isOnDupStreak = false;
+
 			strcpy(pathList[pathListIndex],pairList[i+1].path);
 			pathListIndex++;
 		}
 	}
+	if (l && dupcount != 0) printf("\n");
 	return dupcount;
 }
 
@@ -155,7 +167,7 @@ int main(int argc, char **argv)
 	int dupcount;
 	int lowestSize;
 	int totalSize;
-	if (argc < 2)
+	if (argc < 2)//this won't work now that we have getopt() stuff
 	{
 		printf("Please supply a directory path\nUsage:\t./duplicates directory_path <-flags>\n");
 		exit(EXIT_FAILURE);
@@ -167,5 +179,5 @@ int main(int argc, char **argv)
 	totalSize = getTotalFileSize();
 	lowestSize = getLowestFileSize();
 
-	printf("Total number of files: %d\nNumber of duplicate files: %d\nTotal file size: %d bytes\nSize without duplicates: %d bytes\n", count,dupcount,totalSize,lowestSize);
+	printf("Total number of files:\t\t%d\nNumber of duplicate files:\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,dupcount,totalSize,lowestSize);
 }
