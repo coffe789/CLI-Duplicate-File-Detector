@@ -6,7 +6,7 @@
 
 #include <getopt.h>
 
-#define OPTLIST "df"
+#define OPTLIST "Aafhmlq"
 
 int main(int argc, char *argv[])
 {
@@ -15,19 +15,19 @@ int main(int argc, char *argv[])
     {
         switch (opt)
         {
-        case ‘a’: //all file considered
+        case 'a': //all file considered
             break;
-        case ‘A’: //return EXIT_SUCCESS or EXIT_FAIRLURE
+        case 'A': //return EXIT_SUCCESS or EXIT_FAIRLURE
             break;
-        case ‘f’:
+        case 'f':
             break;
-        case ‘h’:
+        case 'h':
             break;
-        case ‘l’:
+        case 'l':
             break;
-        case ‘m’:
+        case 'm':
             break;
-        case ‘q’:
+        case 'q':
             break;
         }
     }
@@ -36,8 +36,7 @@ int main(int argc, char *argv[])
     // which are not parsed
     for (; optind < argc; optind++)
     {
-        printf(“extra arguments
-               : % s\n”, argv[optind]);
+        printf("extra arguments: %s\n", argv[optind]);
     }
 
     return 0;
