@@ -37,7 +37,7 @@ int getTotalFileSize(FileHashPair *pairList,int pairListIndex)
 	return totalSize;
 }
 
-int getLowestFileSize(char **pathList,int pathListIndex)
+int getLowestFileSize(char pathList[1000][1000],int pathListIndex)
 {
 	printf("pathlist pointer is %p\n",(void*)pathList);
 	printf("pathlist index 0 is %s\n",pathList[0]);
