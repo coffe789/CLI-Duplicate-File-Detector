@@ -2,7 +2,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
-
+#include "duplicates.h"
 
 long int getFileSize(char file_name[])
 {
@@ -27,3 +27,24 @@ long int getFileSize(char file_name[])
     return size;
 }
 
+int getTotalFileSize(FileHashPair *pairList,int pairListIndex)
+{
+	int totalSize = 0;
+	for (int i = 0; i <pairListIndex; i++)
+	{
+		totalSize += getFileSize(pairList[i].path);
+	}
+	return totalSize;
+}
+
+int getLowestFileSize(char **pathList,int pathListIndex)
+{
+	printf("pathlist pointer is %p\n",(void*)pathList);
+	printf("pathlist index 0 is %s\n",pathList[0]);
+	int lowestSize = 0;
+	for (int i = 0; i <pathListIndex; i++)
+	{
+		lowestSize += getFileSize(pathList[i]);
+	}
+	return lowestSize;
+}

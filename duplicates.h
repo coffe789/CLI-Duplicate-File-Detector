@@ -10,8 +10,15 @@
 
 #define OPTLIST "Aaf:h:mlq"
 
-const int PATH_BUFSIZE = 1000;
+struct FileHashPair
+{
+	char path[1000];
+	char hash[256];
+};
+typedef struct FileHashPair FileHashPair;
 
 extern char *strSHA2(char *filename);
 extern int main(int argc, char **argv);
 extern long int getFileSize(char file_name[]);
+extern int getTotalFileSize();
+extern int getLowestFileSize();

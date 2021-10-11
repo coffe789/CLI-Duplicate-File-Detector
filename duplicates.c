@@ -3,21 +3,16 @@
 #include <unistd.h>
 #include <getopt.h>
 
+const int PATH_BUFSIZE = 1000;
 bool a,A,f,h,l,m,q = false;//optional flags
 char farg[1000];
 char harg[1000];
 
-struct FileHashPair
-{
-	char path[1000];
-	char hash[256];
-};
 
-typedef struct FileHashPair FileHashPair;
 FileHashPair pairList[1000];
 int pairListIndex = 0;
 
-char pathList[1000][1000];//1000 strings of size 1000
+char pathList[1000][1000];//Will contain all paths without duplicates
 int pathListIndex = 0;
 
 //Sets optional flags, and sets path to the path argument
@@ -65,16 +60,16 @@ void set_opts(int argc, char *argv[], char *path)
     }
 }
 
-// Fills pairList[] with all files, and sets count to #files
+// Fills pairList[] with all files, and sets count to the # of files
 void listFiles(const char *rootPath, int *count)
 {
 	struct dirent *dp;
 	char path[PATH_BUFSIZE];
 	DIR *dir = opendir(rootPath);
 
-	if (dir == NULL)
+	if (dir == NULL)//Does not try to open files as directories & doesn't include directories it can't access
 	{
-		return;	//Does not try to open files as directories & doesn't include directories it can't access
+		return;	
 	}
 
 	while ( (dp = readdir(dir)) != NULL)
@@ -89,17 +84,14 @@ void listFiles(const char *rootPath, int *count)
 			strcpy(pairList[pairListIndex].path, path);
 			strcpy(pairList[pairListIndex].hash, strSHA2(path));
 
-
-			//printf("%s\n", path);		//print file path
-			//printf("%s\n", strSHA2(path)); //Print hash
 			pairListIndex++;
 			listFiles(path,count);
 		}
 	}
 }
 
-
-int hashcmp(const void *p1, const void *p2)
+// Used by qsort(), compares fileHashPairs
+int qHashcmp(const void *p1, const void *p2)
 {
 	char *str1 = (char*) malloc(64*sizeof(char));//64 is size of hash
 	char *str2 = (char*) malloc(64*sizeof(char));
@@ -119,7 +111,7 @@ int track_duplicates()
 
 	strcpy(pathList[0],pairList[0].path);
 	pathListIndex++;
-	if (f && strcmp(farg,pairList[0].hash)==0)//doesn't check index 0 otherwise. Can't be bothered to think about it, but I don't think this check should even be here...
+	if (f && strcmp(farg,pairList[0].hash)==0)//doesn't check index 0 otherwise
 	{
 		fSuccess = true;
 		printf("%s\t",pairList[0].path);
@@ -163,26 +155,6 @@ int track_duplicates()
 	return dupcount;
 }
 
-// Should put this in the same .c file as getFileSize()
-int getTotalFileSize()
-{
-	int totalSize = 0;
-	for (int i = 0; i <pairListIndex; i++)
-	{
-		totalSize += getFileSize(pairList[i].path);
-	}
-	return totalSize;
-}
-
-int getLowestFileSize()
-{
-	int lowestSize = 0;
-	for (int i = 0; i <pathListIndex; i++)
-	{
-		lowestSize += getFileSize(pathList[i]);
-	}
-	return lowestSize;
-}
 
 //relates to -h flag. Assume -h is true.
 void findHashMatch()
@@ -213,11 +185,13 @@ int main(int argc, char **argv)
 	}
 	int count = 0;
 	listFiles(path, &count);//Fill PairList[]
-	qsort(pairList, pairListIndex, sizeof(FileHashPair),hashcmp);//sort PairList[]
-	if (h) findHashMatch();
+	qsort(pairList, pairListIndex, sizeof(FileHashPair),qHashcmp);//sort PairList[]
+	if (h) findHashMatch(); //Do -h flag
 	dupcount = track_duplicates(); 
-	totalSize = getTotalFileSize();
-	lowestSize = getLowestFileSize();
+	totalSize = getTotalFileSize(pairList,pairListIndex);
+	printf("pathlist pointer is %p\n",(void*)pathList);
+	printf("pathlist index 0 is %s\n",pathList[0]);
+	lowestSize = getLowestFileSize(pathList,pathListIndex);
 
 	printf("Total number of files:\t\t%d\nNumber of duplicate files:\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,dupcount,totalSize,lowestSize);
 }
