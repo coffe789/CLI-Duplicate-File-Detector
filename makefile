@@ -1,6 +1,6 @@
 PROJECT = duplicates
 HEADERS = $(PROJECT).h
-OBJ = duplicates.o
+OBJ = duplicates.o filesizes.o getopt.o
 
 C11	= cc -std=c11
 CFLAGS = -Wall -Werror
