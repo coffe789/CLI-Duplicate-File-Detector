@@ -18,46 +18,45 @@ int pathListIndex = 0;
 //Sets optional flags, and sets path to the path argument
 void set_opts(int argc, char *argv[], char *path)
 {
-    int opt;
-    while ((opt = getopt(argc, argv, OPTLIST)) != -1)
-    {
-        switch (opt)
-        {
-        case 'a': //all files considered including . files
-		a = true;
-        	break;
-        case 'A': //indicates if using advanced options by exiting
-        	exit(EXIT_FAILURE);//we are not
-        case 'f'://finds duplicates of argument file. Exits depending on if found
-		f = true;
-		strcpy(farg,strSHA2(optarg));
-        	break;
-        case 'h'://find all files with hash arg. Exits depending on if found
-		h = true;
-		strcpy(harg,optarg);
-        	break;
-        case 'l'://lists duplicates
-		l = true;
-        	break;
-        case 'm'://advanced
-		m = true;
-        	break;
-        case 'q'://no printing. Exit depending on if duplicates found
-		q = true;
-        	break;
-        }
-    }
-
-    // The path is an unparsed argument. If more than one is supplied, it will only take the last one
-    for (; optind < argc; optind++)
-    {
-	if (opendir(argv[optind])==NULL)
+	int opt;
+	while ((opt = getopt(argc, argv, OPTLIST)) != -1)
 	{
-		printf("'%s' is an Invalid Path!\n",argv[optind]);
-		exit(EXIT_FAILURE);
+		switch (opt)
+		{
+			case 'a': //all files considered including . files
+				a = true;
+				break;
+			case 'A': //indicates if using advanced options by exiting
+				exit(EXIT_FAILURE);//we are not
+			case 'f'://finds duplicates of argument file. Exits depending on if found
+				f = true;
+				strcpy(farg,strSHA2(optarg));
+				break;
+			case 'h'://find all files with hash arg. Exits depending on if found
+				h = true;
+				strcpy(harg,optarg);
+				break;
+			case 'l'://lists duplicates
+				l = true;
+				break;
+			case 'm'://advanced
+				m = true;
+				break;
+			case 'q'://no printing. Exit depending on if duplicates found
+				q = true;
+				break;
+		}
 	}
-	strcpy(path,argv[optind]);
-    }
+	// The path is an unparsed argument. If more than one is supplied, it will only take the last one
+	for (; optind < argc; optind++)
+	{
+		if (opendir(argv[optind])==NULL)
+		{
+			printf("'%s' is an Invalid Path!\n",argv[optind]);
+			exit(EXIT_FAILURE);
+		}
+		strcpy(path,argv[optind]);
+	}
 }
 
 // Fills pairList[] with all files, and sets count to the # of files
@@ -189,8 +188,6 @@ int main(int argc, char **argv)
 	if (h) findHashMatch(); //Do -h flag
 	dupcount = track_duplicates(); 
 	totalSize = getTotalFileSize(pairList,pairListIndex);
-	printf("pathlist pointer is %p\n",(void*)pathList);
-	printf("pathlist index 0 is %s\n",pathList[0]);
 	lowestSize = getLowestFileSize(pathList,pathListIndex);
 
 	printf("Total number of files:\t\t%d\nNumber of duplicate files:\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,dupcount,totalSize,lowestSize);
