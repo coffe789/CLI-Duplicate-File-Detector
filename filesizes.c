@@ -1,6 +1,3 @@
-//  CITS2002 Project 2 2021
-//  Name(s):            Jonathan Davey, JJ Jun
-//  Student number(s):   22887169, 22763977
 #include<stddef.h>
 #include<string.h>
 #include<stdio.h>
