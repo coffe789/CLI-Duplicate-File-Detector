@@ -33,6 +33,13 @@ void set_opts(int argc, char *argv[], char *path)
 				exit(EXIT_FAILURE);//we are not
 			case 'f'://finds duplicates of argument file. Exits depending on if found
 				f = true;
+				FILE *fp = fopen(optarg,"r");
+				if (fp==NULL)
+				{
+					printf("'%s' is an Invalid File!\n",optarg);
+					exit(EXIT_INVALID_FILE);
+				}
+				fclose(fp);
 				strcpy(farg,strSHA2(optarg));
 				break;
 			case 'h'://find all files with hash arg. Exits depending on if found
@@ -56,7 +63,7 @@ void set_opts(int argc, char *argv[], char *path)
 		if (opendir(argv[optind])==NULL)
 		{
 			printf("'%s' is an Invalid Path!\n",argv[optind]);
-			exit(EXIT_FAILURE);
+			exit(EXIT_INVALID_DIRECTORY);
 		}
 		strcpy(path,argv[optind]);
 	}

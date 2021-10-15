@@ -9,6 +9,8 @@
 #include<stdbool.h>
 
 #define OPTLIST "Aaf:h:mlq"
+#define EXIT_INVALID_FILE 3
+#define EXIT_INVALID_DIRECTORY 4
 
 struct FileHashPair
 {
