@@ -42,15 +42,14 @@ int main(int argc, char *argv[], char *path[])
             break;
         }
     }
-
 	// The path is an unparsed argument. If more than one is supplied, it will only take the last one
-	for (; optind < argc; optind++)
+    for (; optind < argc; optind++)
+    {
+	if (opendir(argv[optind])==NULL)
 	{
-		if (opendir(argv[optind])==NULL)
-		{
-			printf("'%s' is an Invalid Path!\n",argv[optind]);
-			exit(EXIT_INVALID_DIRECTORY);
-		}
-		strcpy(path,argv[optind]);
+		printf("'%s' is an Invalid Path!\n",argv[optind]);
+		exit(EXIT_INVALID_DIRECTORY);
 	}
+	strcpy(path,argv[optind]);
+    }
 }
