@@ -43,12 +43,14 @@ int main(int argc, char *argv[], char *path[])
         }
     }
 
-    // optind is for the extra arguments
-    // which are not parsed
-    for (; optind < argc; optind++)
-    {
-        printf("extra arguments: %s\n", argv[optind]);
-    }
-
-    return 0;
+	// The path is an unparsed argument. If more than one is supplied, it will only take the last one
+	for (; optind < argc; optind++)
+	{
+		if (opendir(argv[optind])==NULL)
+		{
+			printf("'%s' is an Invalid Path!\n",argv[optind]);
+			exit(EXIT_INVALID_DIRECTORY);
+		}
+		strcpy(path,argv[optind]);
+	}
 }
