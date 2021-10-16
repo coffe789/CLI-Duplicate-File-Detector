@@ -4,26 +4,18 @@
 #include<stdlib.h>
 #include "duplicates.h"
 
-long int getFileSize(char file_name[])
+int getFileSize(char file_name[])
 {
-    // opening the file in read mode
     FILE *fp = fopen(file_name, "r");
-
-    // checking if the file exist or not
     if (fp == NULL)
     {
         printf("The file does not exist!\n");
         return -1;
     }
-    //moving file pointer to the end
-    fseek(fp, 0L, SEEK_END);
+    fseek(fp, 0L, SEEK_END); //Move stream to end of file
+    long int size = ftell(fp); //Get file size
 
-    // calculating the size of the file
-    long int size = ftell(fp);
-
-    // closing the file
     fclose(fp);
-
     return size;
 }
 
@@ -37,7 +29,7 @@ int getTotalFileSize(FileHashPair *pairList,int pairListIndex)
 	return totalSize;
 }
 
-int getLowestFileSize(char pathList[1000][1000],int pathListIndex)
+int getLowestFileSize(char pathList[ARRAY_BUFSIZE][ARRAY_BUFSIZE],int pathListIndex)
 {
 	int lowestSize = 0;
 	for (int i = 0; i <pathListIndex; i++)

@@ -11,6 +11,7 @@
 #define OPTLIST "Aaf:h:mlq"
 #define EXIT_INVALID_FILE 3
 #define EXIT_INVALID_DIRECTORY 4
+#define ARRAY_BUFSIZE 1000
 
 struct FileHashPair
 {
@@ -21,6 +22,6 @@ typedef struct FileHashPair FileHashPair;
 
 extern char *strSHA2(char *filename);
 extern int main(int argc, char **argv);
-extern long int getFileSize(char file_name[]);
+extern int getFileSize(char file_name[]);
 extern int getTotalFileSize();
 extern int getLowestFileSize();
