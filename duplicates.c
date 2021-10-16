@@ -19,7 +19,7 @@ char pathList[1000][1000];//Will contain all paths without duplicates
 int pathListIndex = 0;
 
 //Sets optional flags, and sets path to the path argument
-void set_opts(int argc, char *argv[], char *path)
+void setOpts(int argc, char *argv[], char *path)
 {
 	int opt;
 	while ((opt = getopt(argc, argv, OPTLIST)) != -1)
@@ -112,7 +112,8 @@ int qHashcmp(const void *p1, const void *p2)
 }
 
 // Creates an array without duplicates, return dupcount
-int track_duplicates()
+// May do something with each duplicate found, depending on the flags
+int trackDuplicates()
 {
 	bool isOnDupStreak = false;
 	bool fSuccess = false;
@@ -141,7 +142,7 @@ int track_duplicates()
 			}
 			if (l)
 			{
-				if(!isOnDupStreak)//The first in a set of duplicates isn't treated as one. This makes sure is is printed for l flag
+				if(!isOnDupStreak)//The first in a set of duplicates isn't treated as one. This makes sure it is still printed for l flag
 				{
 					printf("%s\t", pairList[i].path);
 				}
@@ -183,7 +184,7 @@ void findHashMatch()
 int main(int argc, char **argv)
 {
 	char path[1000]; //path argument from terminal
-	set_opts(argc, argv, path);
+	setOpts(argc, argv, path);
 	int dupcount;
 	int lowestSize;
 	int totalSize;
@@ -196,7 +197,7 @@ int main(int argc, char **argv)
 	listFiles(path, &count);//Fill PairList[]
 	qsort(pairList, pairListIndex, sizeof(FileHashPair),qHashcmp);//sort PairList[]
 	if (h) findHashMatch(); //Do -h flag
-	dupcount = track_duplicates(); 
+	dupcount = trackDuplicates(); 
 	totalSize = getTotalFileSize(pairList,pairListIndex);
 	lowestSize = getLowestFileSize(pathList,pathListIndex);
 
