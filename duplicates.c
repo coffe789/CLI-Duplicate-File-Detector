@@ -135,7 +135,6 @@ int trackDuplicates()
 	{	
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
-			printf("dup %s %d\n",pairList[i+1].hash,dupcount+1);
 			dupcount++;
 			if (qFlag)
 			{
