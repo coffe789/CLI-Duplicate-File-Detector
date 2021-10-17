@@ -1,0 +1,74 @@
+../delet/Jump1000//Art/Player/Test - Copy.png.import
+../delet/Jump1000//Art/Player/coffesheet0.png
+../delet/Jump1000//coffesheet0.png
+../delet/Jump1000//Art/Player/placeholder.png.import
+../delet/Jump1000//Script/Verlet/VerletArea.gd
+../delet/Jump1000//Art/Player/Test.png
+../delet/Jump1000//Scene/Test/Test.gd
+../delet/Jump1000//Script/ConvexHull.cs
+../delet/Jump1000//Art/Player/test_sheet.png
+../delet/Jump1000//icon.png.import
+../delet/Jump1000//Art/Player/coffesheet0.png.import
+../delet/Jump1000//Script/Class/PlayerState.gd
+../delet/Jump1000//Script/PlayerStates/wallsliding.gd
+../delet/Jump1000//Art/Player/player.png.import
+../delet/Jump1000//default_env.tres
+../delet/Jump1000//coffesheet0.png.import
+../delet/Jump1000//Scene/Test/Test.tscn
+../delet/Jump1000//Art/Player/placeholder2.png
+../delet/Jump1000//Script/Cloth.cs
+../delet/Jump1000//README.md
+../delet/Jump1000//Art/Player/player.png
+../delet/Jump1000//Art/Player/placeholder3.png.import
+../delet/Jump1000//Script/Verlet/IsAPin.gd
+../delet/Jump1000//Script/Player.gd
+../delet/Jump1000//Art/solid.png.import
+../delet/Jump1000//project.godot
+../delet/Jump1000//Audio/SFX/hit.wav
+../delet/Jump1000//Scene/Player/Player.tscn
+../delet/Jump1000//Script/PlayerStates/jumping.gd
+../delet/Jump1000//Script/PlayerStates/walljumping.gd
+../delet/Jump1000//Art/solid.png
+../delet/Jump1000//Art/Player/placeholder2.png.import
+../delet/Jump1000//Art/Player/Test.png.import
+../delet/Jump1000//Script/Particle.cs
+../delet/Jump1000//Art/Player/test_sheet.png.import
+../delet/Jump1000//Scene/Entities/Verlet/PointMass.tscn
+../delet/Jump1000//Scene/Entities/Verlet/Link.tscn
+../delet/Jump1000//Script/PlayerStates/falling.gd
+../delet/Jump1000//Art/Player/Test - Copy.png
+../delet/Jump1000//Scene/Levels/Area0.tscn
+../delet/Jump1000//Scene/Entities/Verlet/VerletArea.tscn
+../delet/Jump1000//Scene/main_scene.tscn
+../delet/Jump1000//Audio/SFX/hit.wav.import
+../delet/Jump1000//Script/Verlet/Link.gd
+../delet/Jump1000//Audio/SFX/jump.wav
+../delet/Jump1000//Art/Player/thinking.pdn
+../delet/Jump1000//Script/Verlet/PointMass.gd
+../delet/Jump1000//Art
+../delet/Jump1000//Art/Player
+../delet/Jump1000//Audio
+../delet/Jump1000//Audio/SFX
+../delet/Jump1000//Scene
+../delet/Jump1000//Scene/Entities
+../delet/Jump1000//Scene/Entities/Verlet
+../delet/Jump1000//Scene/Levels
+../delet/Jump1000//Scene/Player
+../delet/Jump1000//Scene/Test
+../delet/Jump1000//Script
+../delet/Jump1000//Script/Class
+../delet/Jump1000//Script/PlayerStates
+../delet/Jump1000//Script/Verlet
+../delet/Jump1000//___ConceptArt
+../delet/Jump1000//Art/Player/placeholder.png
+../delet/Jump1000//Audio/SFX/jump.wav.import
+../delet/Jump1000//___ConceptArt/readme.txt
+../delet/Jump1000//Script/PlayerStates/running.gd
+../delet/Jump1000//Art/Player/placeholder3.png
+../delet/Jump1000//icon.png
+../delet/Jump1000//Script/PlayerStates/idle.gd
+Total number of files:		69
+Number of duplicate files:	15
+Total file size:		189011 bytes
+Size without duplicates:	122549 bytes
+No files inside supplied directory!

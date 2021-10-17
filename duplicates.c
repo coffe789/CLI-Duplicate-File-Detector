@@ -85,14 +85,20 @@ void listFiles(const char *rootPath, int *count)
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
 			if (*(dp->d_name)=='.' && !aFlag){continue;} //skip hidden files unless -a
-			*count += 1;
 			strcpy(fullPath,rootPath);
 			strcat(fullPath,"/");
 			strcat(fullPath, dp->d_name);
-			strcpy(pairList[pairListIndex].path, fullPath);
-			strcpy(pairList[pairListIndex].hash, strSHA2(fullPath));
+			DIR *dp2 = opendir(fullPath);
+			if (dp2 ==NULL)
+			{
 
-			pairListIndex++;
+				*count += 1;
+				strcpy(pairList[pairListIndex].path, fullPath);
+				strcpy(pairList[pairListIndex].hash, strSHA2(fullPath));
+				pairListIndex++;
+				closedir(dp2);
+			}
+
 			listFiles(fullPath,count);
 		}
 	}
@@ -129,6 +135,7 @@ int trackDuplicates()
 	{	
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
+			printf("dup %s %d\n",pairList[i+1].hash,dupcount+1);
 			dupcount++;
 			if (qFlag)
 			{
@@ -204,6 +211,5 @@ int main(int argc, char **argv)
 	dupcount = trackDuplicates(); 
 	totalSize = getTotalFileSize(pairList,pairListIndex);
 	lowestSize = getLowestFileSize(pathList,pathListIndex);
-
-	printf("Total number of files:\t\t%d\nNumber of duplicate files:\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,dupcount,totalSize,lowestSize);
+	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,count - dupcount,totalSize,lowestSize);
 }
