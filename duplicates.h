@@ -11,7 +11,7 @@
 #define OPTLIST "Aaf:h:mlq"
 #define EXIT_INVALID_FILE 3
 #define EXIT_INVALID_DIRECTORY 4
-#define ARRAY_BUFSIZE 1000
+#define ARRAY_BUFSIZE 2000
 
 struct FileHashPair
 {

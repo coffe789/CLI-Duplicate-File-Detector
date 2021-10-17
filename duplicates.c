@@ -78,6 +78,9 @@ void listFiles(const char *rootPath, int *count)
 	char fullPath[ARRAY_BUFSIZE];
 	DIR *dir = opendir(rootPath);
 
+	//if (!strcmp("../cits2002",rootPath)){printf("screm\n");}
+	printf("here, %d\t%s\n",*count,rootPath);
+
 	if (dir == NULL)//Does not try to open files as directories & doesn't include directories it can't access
 	{
 		return;	
@@ -205,8 +208,7 @@ int main(int argc, char **argv)
 	printf("%d\n",inputPathsIndex);
 	while(inputPathsIndex > 0)
 	{
-		printf("here\n");
-		listFiles(inputPaths[inputPathsIndex], &count);//Fill PairList[]
+		listFiles(inputPaths[inputPathsIndex-1], &count);//Fill PairList[]
 		inputPathsIndex-=1;
 	}
 	printf("file count = %d\n",count);
