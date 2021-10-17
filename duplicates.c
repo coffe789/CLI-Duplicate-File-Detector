@@ -10,6 +10,8 @@ bool aFlag,fFlag,hFlag,lFlag,mFlag,qFlag = false;//optional flags
 char fArgument[ARRAY_BUFSIZE];//command line arguments
 char hArgument[ARRAY_BUFSIZE];
 
+char inputPaths[ARRAY_BUFSIZE][ARRAY_BUFSIZE];
+int inputPathsIndex= 0;
 
 FileHashPair pairList[ARRAY_BUFSIZE];
 int pairListIndex = 0;
@@ -18,7 +20,7 @@ char pathList[ARRAY_BUFSIZE][ARRAY_BUFSIZE];//Will contain all paths without dup
 int pathListIndex = 0;
 
 //Sets optional flags and sets the path argument as the supplied directory
-void setOpts(int argc, char *argv[], char *path)
+void setOpts(int argc, char *argv[])
 {
 	int opt;
 	while ((opt = getopt(argc, argv, OPTLIST)) != -1)
@@ -64,7 +66,8 @@ void setOpts(int argc, char *argv[], char *path)
 			printf("'%s' is an Invalid Path!\n",argv[optind]);
 			exit(EXIT_INVALID_DIRECTORY);
 		}
-		strcpy(path,argv[optind]);
+		strcpy(inputPaths[inputPathsIndex],argv[optind]);
+		inputPathsIndex++;
 	}
 }
 
@@ -188,8 +191,8 @@ void findHashMatch()
 
 int main(int argc, char **argv)
 {
-	char path[ARRAY_BUFSIZE]; //path argument from terminal
-	setOpts(argc, argv, path);
+	//char path[ARRAY_BUFSIZE]; //path argument from terminal
+	setOpts(argc, argv);
 	int dupcount;
 	int lowestSize;
 	int totalSize;
@@ -199,7 +202,14 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 	int count = 0;
-	listFiles(path, &count);//Fill PairList[]
+	printf("%d\n",inputPathsIndex);
+	while(inputPathsIndex > 0)
+	{
+		printf("here\n");
+		listFiles(inputPaths[inputPathsIndex], &count);//Fill PairList[]
+		inputPathsIndex-=1;
+	}
+	printf("file count = %d\n",count);
 	if (count == 0)
 	{
 		printf("No files inside supplied directory!\n");
