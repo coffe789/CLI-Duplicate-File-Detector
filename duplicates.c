@@ -20,6 +20,8 @@ int pairListIndex = 0;
 char noDuplicateList[ARRAY_BUFSIZE][ARRAY_BUFSIZE];//Will contain all paths without duplicates
 int noDuplicateListIndex = 0;
 
+int identicalCount = 0;
+
 //Set optional flags and fill inputPaths[] 
 void setOpts(int argc, char *argv[])
 {
@@ -118,13 +120,17 @@ void listFiles(const char *rootPath, int *count)
 // Used by qsort(), compares fileHashPairs
 int qHashcmp(const void *p1, const void *p2)
 {
-	char *str1 = (char*) malloc(64*sizeof(char));//64 is size of hash
-	char *str2 = (char*) malloc(64*sizeof(char));
-	strcpy(str1,((FileHashPair*)p1)->hash);
-	strcpy(str2,((FileHashPair*)p2)->hash);
-	int cmp = strcmp(str1,str2);
-	free(str1);free(str2);
-	return cmp;
+	int hashCmp = strcmp(((FileHashPair*)p1)->hash,((FileHashPair*)p2)->hash);// cmp;
+	if (hashCmp == 0)//if hashes are equal, sort by fileID
+	{
+		int IDCmp = 0;
+		int ID_a = ((FileHashPair*)p1)->fileID; 
+		int ID_b = ((FileHashPair*)p2)->fileID; 
+		if (ID_a > ID_b) IDCmp = 1;
+		else if (ID_a < ID_b) IDCmp = -1;
+		return IDCmp;
+	}
+	return hashCmp;
 }
 
 // Creates an array without duplicates, return dupCount
@@ -148,6 +154,7 @@ int trackDuplicates()
 			if (pairList[i].fileID==pairList[i+1].fileID)
 			{
 				pairList[i+1].isIdentical = true;
+				identicalCount++;
 				continue;
 			}
 			dupcount++;
@@ -228,4 +235,5 @@ int main(int argc, char **argv)
 	totalFileSize = getTotalFileSize(pairList,pairListIndex);
 	lowestFileSize = getLowestFileSize(pairList,pairListIndex);
 	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,count - dupCount,totalFileSize,lowestFileSize);
+	printf("%d\n",identicalCount);
 }
