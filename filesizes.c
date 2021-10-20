@@ -19,27 +19,27 @@ int getFileSize(char file_name[])
     return size;
 }
 
-int getTotalFileSize(FileHashPair *pairList, int pairListIndex)
+int getTotalFileSize(FileInfo *FileInfoList, int FileInfoListIndex)
 {
 	int totalSize = 0;
-	for (int i = 0; i <pairListIndex; i++)
+	for (int i = 0; i <FileInfoListIndex; i++)
 	{
-		if (!pairList[i].isIdentical)
+		if (!FileInfoList[i].isIdentical)
 		{
-			totalSize += getFileSize(pairList[i].path);
+			totalSize += getFileSize(FileInfoList[i].path);
 		}
 	}
 	return totalSize;
 }
 
-int getLowestFileSize(FileHashPair *pairList, int pairListIndex)
+int getLowestFileSize(FileInfo *FileInfoList, int FileInfoListIndex)
 {
 	int lowestSize = 0;
-	for (int i = 0; i <pairListIndex; i++)
+	for (int i = 0; i <FileInfoListIndex; i++)
 	{
-		if (!pairList[i].isDuplicate && !pairList[i].isIdentical)
+		if (!FileInfoList[i].isDuplicate && !FileInfoList[i].isIdentical)
 		{
-			lowestSize += getFileSize(pairList[i].path);
+			lowestSize += getFileSize(FileInfoList[i].path);
 		}
 	}
 	return lowestSize;

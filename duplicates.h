@@ -13,7 +13,7 @@
 #define EXIT_INVALID_DIRECTORY 4
 #define ARRAY_BUFSIZE 2000
 
-struct FileHashPair
+struct FileInfo
 {
 	char path[ARRAY_BUFSIZE];
 	char hash[256];		//unique identifier for the contents of a file
@@ -21,7 +21,7 @@ struct FileHashPair
 	bool isDuplicate;	//Has same has as another file
 	bool isIdentical;	//Has same fileID as another file
 };
-typedef struct FileHashPair FileHashPair;
+typedef struct FileInfo FileInfo;
 
 extern char *strSHA2(char *filename);
 extern int main(int argc, char **argv);
