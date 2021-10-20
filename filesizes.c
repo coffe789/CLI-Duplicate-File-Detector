@@ -24,7 +24,10 @@ int getTotalFileSize(FileHashPair *pairList, int pairListIndex)
 	int totalSize = 0;
 	for (int i = 0; i <pairListIndex; i++)
 	{
-		totalSize += getFileSize(pairList[i].path);
+		if (!pairList[i].isIdentical)
+		{
+			totalSize += getFileSize(pairList[i].path);
+		}
 	}
 	return totalSize;
 }
@@ -34,7 +37,7 @@ int getLowestFileSize(FileHashPair *pairList, int pairListIndex)
 	int lowestSize = 0;
 	for (int i = 0; i <pairListIndex; i++)
 	{
-		if (!pairList[i].isDuplicate)
+		if (!pairList[i].isDuplicate && !pairList[i].isIdentical)
 		{
 			lowestSize += getFileSize(pairList[i].path);
 		}

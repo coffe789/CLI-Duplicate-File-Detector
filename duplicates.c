@@ -144,8 +144,13 @@ int trackDuplicates()
 	{	
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
-			dupcount++;
 			pairList[i+1].isDuplicate = true;
+			if (pairList[i].fileID==pairList[i+1].fileID)
+			{
+				pairList[i+1].isIdentical = true;
+				continue;
+			}
+			dupcount++;
 			if (qFlag)
 			{
 				exit(EXIT_FAILURE);
