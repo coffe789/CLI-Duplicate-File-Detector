@@ -15,8 +15,11 @@
 
 struct FileHashPair
 {
-	char path[1000];
-	char hash[256];
+	char path[ARRAY_BUFSIZE];
+	char hash[256];		//unique identifier for the contents of a file
+	long int fileID;	//unique identifier for the file itself
+	bool isDuplicate;	//Has same has as another file
+	bool isIdentical;	//Has same fileID as another file
 };
 typedef struct FileHashPair FileHashPair;
 

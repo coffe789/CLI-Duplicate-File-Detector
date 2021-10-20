@@ -5,9 +5,10 @@
 #include<string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <sys/stat.h>
 
 bool aFlag,fFlag,hFlag,lFlag,mFlag,qFlag = false;//optional flags
-char fArgument[ARRAY_BUFSIZE];//command line arguments
+char fArgument[ARRAY_BUFSIZE];//command line flag arguments
 char hArgument[ARRAY_BUFSIZE];
 
 char inputPaths[ARRAY_BUFSIZE][ARRAY_BUFSIZE];
@@ -16,10 +17,10 @@ int inputPathsIndex= 0;
 FileHashPair pairList[ARRAY_BUFSIZE];
 int pairListIndex = 0;
 
-char pathList[ARRAY_BUFSIZE][ARRAY_BUFSIZE];//Will contain all paths without duplicates
-int pathListIndex = 0;
+char noDuplicateList[ARRAY_BUFSIZE][ARRAY_BUFSIZE];//Will contain all paths without duplicates
+int noDuplicateListIndex = 0;
 
-//Sets optional flags and sets the path argument as the supplied directory
+//Set optional flags and fill inputPaths[] 
 void setOpts(int argc, char *argv[])
 {
 	int opt;
@@ -58,7 +59,7 @@ void setOpts(int argc, char *argv[])
 				break;
 		}
 	}
-	// The path is an unparsed argument. If more than one is supplied, it will only take the last one
+	// The path is an unparsed argument, supports multiple paths. 
 	for (; optind < argc; optind++)
 	{
 		if (opendir(argv[optind])==NULL)
@@ -71,6 +72,16 @@ void setOpts(int argc, char *argv[])
 	}
 }
 
+// Combines a file's file ID & file system ID to create a unique value
+long int create_fileUID(char *filePath)
+{
+	struct stat buf;
+	stat(filePath, &buf);
+	long int a = buf.st_ino;
+	int b = buf.st_dev;
+	return (long int) (a * 10 + b);	//concatenate values to create unique combination of ino & dev 
+}
+
 // Fills pairList[] with all file/hash pairs, and sets count to the total # of files
 void listFiles(const char *rootPath, int *count)
 {
@@ -78,33 +89,27 @@ void listFiles(const char *rootPath, int *count)
 	char fullPath[ARRAY_BUFSIZE];
 	DIR *dir = opendir(rootPath);
 
-	//if (!strcmp("../cits2002",rootPath)){printf("screm\n");}
-	printf("here, %d\t%s\n",*count,rootPath);
-
-	if (dir == NULL)//Does not try to open files as directories & doesn't include directories it can't access
-	{
-		return;	
-	}
-
 	while ( (dp = readdir(dir)) != NULL)
 	{
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
-			if (*(dp->d_name)=='.' && !aFlag){continue;} //skip hidden files unless -a
+			if (*(dp->d_name)=='.' && !aFlag) continue; //skip hidden files unless -a
 			strcpy(fullPath,rootPath);
 			strcat(fullPath,"/");
 			strcat(fullPath, dp->d_name);
 			DIR *dp2 = opendir(fullPath);
-			if (dp2 ==NULL)
+			if (dp2 ==NULL)	//if it is a file and not a directory
 			{
-
 				*count += 1;
 				strcpy(pairList[pairListIndex].path, fullPath);
 				strcpy(pairList[pairListIndex].hash, strSHA2(fullPath));
-				pairListIndex++;
-				closedir(dp2);
-			}
+				pairList[pairListIndex].fileID = create_fileUID(fullPath);
+			//	printf("%ld\n", create_fileUID(fullPath));
 
+				pairListIndex++;
+				continue; // Don't do directory recursion on a file 
+			}
+			closedir(dp2);
 			listFiles(fullPath,count);
 		}
 	}
@@ -122,7 +127,7 @@ int qHashcmp(const void *p1, const void *p2)
 	return cmp;
 }
 
-// Creates an array without duplicates, return dupcount
+// Creates an array without duplicates, return dupCount
 // May perform an action for each duplicate found, depending on the flags
 int trackDuplicates()
 {
@@ -130,8 +135,6 @@ int trackDuplicates()
 	bool fSuccess = false;
 	int dupcount = 0;
 
-	strcpy(pathList[0],pairList[0].path);
-	pathListIndex++;
 	if (fFlag && strcmp(fArgument,pairList[0].hash)==0)//doesn't check index 0 otherwise
 	{
 		fSuccess = true;
@@ -142,6 +145,7 @@ int trackDuplicates()
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
 			dupcount++;
+			pairList[i+1].isDuplicate = true;
 			if (qFlag)
 			{
 				exit(EXIT_FAILURE);
@@ -165,8 +169,7 @@ int trackDuplicates()
 		{
 			isOnDupStreak = false;
 
-			strcpy(pathList[pathListIndex],pairList[i+1].path);
-			pathListIndex++;
+//			pairList[i+1].isDuplicate = true;
 		}
 	}
 	if (qFlag) exit(EXIT_SUCCESS);
@@ -177,7 +180,7 @@ int trackDuplicates()
 }
 
 
-//relates to -h flag. Assume -h is true.
+//Print the path of every hash match of 'hArgument'
 void findHashMatch()
 {
 	bool exitVal = EXIT_FAILURE;
@@ -194,24 +197,21 @@ void findHashMatch()
 
 int main(int argc, char **argv)
 {
-	//char path[ARRAY_BUFSIZE]; //path argument from terminal
 	setOpts(argc, argv);
-	int dupcount;
-	int lowestSize;
-	int totalSize;
+	int dupCount;
+	int lowestFileSize;
+	int totalFileSize;
 	if (argc < 2)
 	{
 		printf("Incorrect program invocation!\nUsage:\t./duplicates directory_path <-flags>\n");
 		exit(EXIT_FAILURE);
 	}
 	int count = 0;
-	printf("%d\n",inputPathsIndex);
-	while(inputPathsIndex > 0)
+	while(inputPathsIndex > 0)//allows use of multiple paths
 	{
 		listFiles(inputPaths[inputPathsIndex-1], &count);//Fill PairList[]
 		inputPathsIndex-=1;
 	}
-	printf("file count = %d\n",count);
 	if (count == 0)
 	{
 		printf("No files inside supplied directory!\n");
@@ -219,8 +219,8 @@ int main(int argc, char **argv)
 	}
 	qsort(pairList, pairListIndex, sizeof(FileHashPair),qHashcmp);//sort PairList[]
 	if (hFlag) findHashMatch(); //Do -h flag
-	dupcount = trackDuplicates(); 
-	totalSize = getTotalFileSize(pairList,pairListIndex);
-	lowestSize = getLowestFileSize(pathList,pathListIndex);
-	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,count - dupcount,totalSize,lowestSize);
+	dupCount = trackDuplicates(); 
+	totalFileSize = getTotalFileSize(pairList,pairListIndex);
+	lowestFileSize = getLowestFileSize(pairList,pairListIndex);
+	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,count - dupCount,totalFileSize,lowestFileSize);
 }

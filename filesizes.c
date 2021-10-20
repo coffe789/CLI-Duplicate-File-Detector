@@ -19,7 +19,7 @@ int getFileSize(char file_name[])
     return size;
 }
 
-int getTotalFileSize(FileHashPair *pairList,int pairListIndex)
+int getTotalFileSize(FileHashPair *pairList, int pairListIndex)
 {
 	int totalSize = 0;
 	for (int i = 0; i <pairListIndex; i++)
@@ -29,12 +29,15 @@ int getTotalFileSize(FileHashPair *pairList,int pairListIndex)
 	return totalSize;
 }
 
-int getLowestFileSize(char pathList[ARRAY_BUFSIZE][ARRAY_BUFSIZE],int pathListIndex)
+int getLowestFileSize(FileHashPair *pairList, int pairListIndex)
 {
 	int lowestSize = 0;
-	for (int i = 0; i <pathListIndex; i++)
+	for (int i = 0; i <pairListIndex; i++)
 	{
-		lowestSize += getFileSize(pathList[i]);
+		if (!pairList[i].isDuplicate)
+		{
+			lowestSize += getFileSize(pairList[i].path);
+		}
 	}
 	return lowestSize;
 }
