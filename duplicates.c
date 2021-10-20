@@ -17,11 +17,6 @@ int inputPathsIndex= 0;
 FileHashPair pairList[ARRAY_BUFSIZE];
 int pairListIndex = 0;
 
-char noDuplicateList[ARRAY_BUFSIZE][ARRAY_BUFSIZE];//Will contain all paths without duplicates
-int noDuplicateListIndex = 0;
-
-int identicalCount = 0;
-
 //Set optional flags and fill inputPaths[] 
 void setOpts(int argc, char *argv[])
 {
@@ -85,7 +80,7 @@ long int create_fileUID(char *filePath)
 }
 
 // Fills pairList[] with all file/hash pairs, and sets count to the total # of files
-void listFiles(const char *rootPath, int *count)
+void listFiles(const char *rootPath)
 {
 	struct dirent *dp;
 	char fullPath[ARRAY_BUFSIZE];
@@ -102,7 +97,6 @@ void listFiles(const char *rootPath, int *count)
 			DIR *dp2 = opendir(fullPath);
 			if (dp2 ==NULL)	//if it is a file and not a directory
 			{
-				*count += 1;
 				strcpy(pairList[pairListIndex].path, fullPath);
 				strcpy(pairList[pairListIndex].hash, strSHA2(fullPath));
 				pairList[pairListIndex].fileID = create_fileUID(fullPath);
@@ -112,7 +106,7 @@ void listFiles(const char *rootPath, int *count)
 				continue; // Don't do directory recursion on a file 
 			}
 			closedir(dp2);
-			listFiles(fullPath,count);
+			listFiles(fullPath);
 		}
 	}
 }
@@ -135,29 +129,32 @@ int qHashcmp(const void *p1, const void *p2)
 
 // Creates an array without duplicates, return dupCount
 // May perform an action for each duplicate found, depending on the flags
-int trackDuplicates()
+void trackDuplicates(int *totalCount, int *dupCount)
 {
 	bool isOnDupStreak = false;
 	bool fSuccess = false;
-	int dupcount = 0;
 
 	if (fFlag && strcmp(fArgument,pairList[0].hash)==0)//doesn't check index 0 otherwise
 	{
 		fSuccess = true;
 		printf("%s\t",pairList[0].path);
 	}
+	if (*pairList[0].path != '\0')//doesn't count index 0 otherwise
+	{
+		*totalCount += 1;
+	}
 	for (int i = 0; i < pairListIndex-1; i++) //Count duplicates
 	{	
+		if (pairList[i].fileID==pairList[i+1].fileID)//skip identical files from overlapping directories
+		{
+			pairList[i+1].isIdentical = true;
+			continue;
+		}
+		*totalCount += 1;
 		if (strcmp(pairList[i].hash,pairList[i+1].hash)==0)
 		{
 			pairList[i+1].isDuplicate = true;
-			if (pairList[i].fileID==pairList[i+1].fileID)
-			{
-				pairList[i+1].isIdentical = true;
-				identicalCount++;
-				continue;
-			}
-			dupcount++;
+			*dupCount+=1;
 			if (qFlag)
 			{
 				exit(EXIT_FAILURE);
@@ -169,7 +166,7 @@ int trackDuplicates()
 			}
 			if (lFlag)
 			{
-				if(!isOnDupStreak)//The first in a set of duplicates isn't treated as one. This makes sure it is still printed for l flag
+				if(!isOnDupStreak)//The first in a set of duplicates isn't counted as one. This makes sure it is still printed for l flag
 				{
 					printf("%s\t", pairList[i].path);
 				}
@@ -186,9 +183,9 @@ int trackDuplicates()
 	}
 	if (qFlag) exit(EXIT_SUCCESS);
 	if (fSuccess) exit(EXIT_SUCCESS);
-	if ((lFlag && dupcount != 0)) printf("\n");
+	if ((lFlag && dupCount != 0)) printf("\n");
 	if (fFlag && !fSuccess) exit(EXIT_FAILURE);
-	return dupcount;
+//	return dupcount;
 }
 
 
@@ -210,7 +207,7 @@ void findHashMatch()
 int main(int argc, char **argv)
 {
 	setOpts(argc, argv);
-	int dupCount;
+	int dupCount = 0;
 	int lowestFileSize;
 	int totalFileSize;
 	if (argc < 2)
@@ -221,19 +218,18 @@ int main(int argc, char **argv)
 	int count = 0;
 	while(inputPathsIndex > 0)//allows use of multiple paths
 	{
-		listFiles(inputPaths[inputPathsIndex-1], &count);//Fill PairList[]
+		listFiles(inputPaths[inputPathsIndex-1]);//Fill PairList[]
 		inputPathsIndex-=1;
 	}
-	if (count == 0)
-	{
-		printf("No files inside supplied directory!\n");
-		exit(EXIT_FAILURE);
-	}
+//	if (count == 0)
+//	{
+//		printf("No files inside supplied directory!\n");
+//		exit(EXIT_FAILURE);
+//	}
 	qsort(pairList, pairListIndex, sizeof(FileHashPair),qHashcmp);//sort PairList[]
 	if (hFlag) findHashMatch(); //Do -h flag
-	dupCount = trackDuplicates(); 
+	trackDuplicates(&count, &dupCount); 
 	totalFileSize = getTotalFileSize(pairList,pairListIndex);
 	lowestFileSize = getLowestFileSize(pairList,pairListIndex);
 	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n", count,count - dupCount,totalFileSize,lowestFileSize);
-	printf("%d\n",identicalCount);
 }
