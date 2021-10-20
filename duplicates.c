@@ -177,15 +177,12 @@ void trackDuplicates(int *totalCount, int *dupCount)
 		else
 		{
 			isOnDupStreak = false;
-
-//			fileInfoList[i+1].isDuplicate = true;
 		}
 	}
 	if (qFlag) exit(EXIT_SUCCESS);
 	if (fSuccess) exit(EXIT_SUCCESS);
 	if ((lFlag && dupCount != 0)) printf("\n");
 	if (fFlag && !fSuccess) exit(EXIT_FAILURE);
-//	return dupcount;
 }
 
 
@@ -195,7 +192,7 @@ void findHashMatch()
 	bool exitVal = EXIT_FAILURE;
 	for (int i = 0; i < fileInfoListIndex; i++)
 	{
-		if (strcmp(hArgument,fileInfoList[i].hash)==0)
+		if (strcmp(hArgument,fileInfoList[i].hash)==0 && !fileInfoList[i].isIdentical)
 		{
 			printf("%s\n",fileInfoList[i].path);
 			exitVal = EXIT_SUCCESS;
