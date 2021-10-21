@@ -8,17 +8,24 @@
 #include <sys/stat.h>
 
 bool aFlag,fFlag,hFlag,lFlag,mFlag,qFlag = false;//optional flags
-char fArgument[ARRAY_BUFSIZE];//command line flag arguments
 char hArgument[ARRAY_BUFSIZE];
-
 FileInfo fArgument2;
-FileInfo hArgument2;
 
 char inputPaths[ARRAY_BUFSIZE][ARRAY_BUFSIZE];
 int inputPathsIndex= 0;
 
 FileInfo fileInfoList[ARRAY_BUFSIZE];
 int fileInfoListIndex = 0;
+
+// Combines a file's ID & file system ID to create a unique value
+long int create_fileUID(char *filePath)
+{
+	struct stat buf;
+	stat(filePath, &buf);
+	long int a = buf.st_ino;
+	int b = buf.st_dev;
+	return (long int) (a * 100 + b);//concatenate values to create unique combination of ino & dev 
+}
 
 //Set optional flags and fill inputPaths[] 
 void setOpts(int argc, char *argv[])
@@ -42,8 +49,8 @@ void setOpts(int argc, char *argv[])
 					exit(EXIT_INVALID_FILE);
 				}
 				fclose(fp);
-				strcpy(fArgument,strSHA2(optarg));
 				strcpy(fArgument2.hash,strSHA2(optarg));
+				fArgument2.fileID = create_fileUID(optarg);
 				break;
 			case 'h'://find all files with hash arg. Exits depending on if found
 				hFlag = true;
@@ -73,15 +80,6 @@ void setOpts(int argc, char *argv[])
 	}
 }
 
-// Combines a file's file ID & file system ID to create a unique value
-long int create_fileUID(char *filePath)
-{
-	struct stat buf;
-	stat(filePath, &buf);
-	long int a = buf.st_ino;
-	int b = buf.st_dev;
-	return (long int) (a * 10 + b);	//concatenate values to create unique combination of ino & dev 
-}
 
 // Fills fileInfoList[] with all file/hash pairs, and sets count to the total # of files
 void listFiles(const char *rootPath)
@@ -138,10 +136,10 @@ void trackDuplicates(int *totalCount, int *dupCount)
 	bool isOnDupStreak = false;
 	bool fSuccess = false;
 
-	if (fFlag && strcmp(fArgument,fileInfoList[0].hash)==0)//doesn't check index 0 otherwise
+	if (fFlag && strcmp(fArgument2.hash,fileInfoList[fileInfoListIndex].hash)==0 && fileInfoList[fileInfoListIndex].fileID != fArgument2.fileID)//doesn't check final index otherwise
 	{
 		fSuccess = true;
-		printf("%s\t",fileInfoList[0].path);//I think this line shouldn't be here
+		printf("%s\t",fileInfoList[fileInfoListIndex].path);
 	}
 	if (*fileInfoList[0].path != '\0')//doesn't count index 0 otherwise
 	{
@@ -155,7 +153,7 @@ void trackDuplicates(int *totalCount, int *dupCount)
 			continue;
 		}
 		*totalCount += 1;
-		if (fFlag && strcmp(fArgument,fileInfoList[i].hash)==0)
+		if (fFlag && strcmp(fArgument2.hash,fileInfoList[i].hash)==0 && fileInfoList[i].fileID != fArgument2.fileID)
 		{
 			fSuccess = true;
 			printf("%s\n",fileInfoList[i].path);
