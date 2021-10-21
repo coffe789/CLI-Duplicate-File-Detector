@@ -18,7 +18,7 @@ FileInfo fileInfoList[ARRAY_BUFSIZE];
 int fileInfoListIndex = 0;
 
 // Combines a file's ID & file system ID to create a unique value
-long int create_fileUID(char *filePath)
+long int createFileUID(char *filePath)
 {
 	struct stat buf;
 	stat(filePath, &buf);
@@ -50,7 +50,7 @@ void setOpts(int argc, char *argv[])
 				}
 				fclose(fp);
 				strcpy(fArgument2.hash,strSHA2(optarg));
-				fArgument2.fileID = create_fileUID(optarg);
+				fArgument2.fileID = createFileUID(optarg);
 				break;
 			case 'h'://find all files with hash arg. Exits depending on if found
 				hFlag = true;
@@ -101,7 +101,7 @@ void listFiles(const char *rootPath)
 			{
 				strcpy(fileInfoList[fileInfoListIndex].path, fullPath);
 				strcpy(fileInfoList[fileInfoListIndex].hash, strSHA2(fullPath));
-				fileInfoList[fileInfoListIndex].fileID = create_fileUID(fullPath);
+				fileInfoList[fileInfoListIndex].fileID = createFileUID(fullPath);
 
 				fileInfoListIndex++;
 				continue; // Don't do directory recursion on a file 
