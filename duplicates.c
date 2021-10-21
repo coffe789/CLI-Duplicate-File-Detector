@@ -11,6 +11,9 @@ bool aFlag,fFlag,hFlag,lFlag,mFlag,qFlag = false;//optional flags
 char fArgument[ARRAY_BUFSIZE];//command line flag arguments
 char hArgument[ARRAY_BUFSIZE];
 
+FileInfo fArgument2;
+FileInfo hArgument2;
+
 char inputPaths[ARRAY_BUFSIZE][ARRAY_BUFSIZE];
 int inputPathsIndex= 0;
 
@@ -40,6 +43,7 @@ void setOpts(int argc, char *argv[])
 				}
 				fclose(fp);
 				strcpy(fArgument,strSHA2(optarg));
+				strcpy(fArgument2.hash,strSHA2(optarg));
 				break;
 			case 'h'://find all files with hash arg. Exits depending on if found
 				hFlag = true;
@@ -61,7 +65,7 @@ void setOpts(int argc, char *argv[])
 	{
 		if (opendir(argv[optind])==NULL)
 		{
-			printf("'%s' is an Invalid Path!\n",argv[optind]);
+			printf("'%s' is an Invalid Directory!\n",argv[optind]);
 			exit(EXIT_INVALID_DIRECTORY);
 		}
 		strcpy(inputPaths[inputPathsIndex],argv[optind]);
@@ -137,7 +141,7 @@ void trackDuplicates(int *totalCount, int *dupCount)
 	if (fFlag && strcmp(fArgument,fileInfoList[0].hash)==0)//doesn't check index 0 otherwise
 	{
 		fSuccess = true;
-		printf("%s\t",fileInfoList[0].path);
+		printf("%s\t",fileInfoList[0].path);//I think this line shouldn't be here
 	}
 	if (*fileInfoList[0].path != '\0')//doesn't count index 0 otherwise
 	{
@@ -151,18 +155,19 @@ void trackDuplicates(int *totalCount, int *dupCount)
 			continue;
 		}
 		*totalCount += 1;
+		if (fFlag && strcmp(fArgument,fileInfoList[i].hash)==0)
+		{
+			fSuccess = true;
+			printf("%s\n",fileInfoList[i].path);
+		}
 		if (strcmp(fileInfoList[i].hash,fileInfoList[i+1].hash)==0)
 		{
 			fileInfoList[i+1].isDuplicate = true;
 			*dupCount+=1;
+			//printf("%s\n",fileInfoList[i+1].path);//debug
 			if (qFlag)
 			{
 				exit(EXIT_FAILURE);
-			}
-			if (fFlag && strcmp(fArgument,fileInfoList[i+1].hash)==0)
-			{
-				fSuccess = true;
-				printf("%s\n",fileInfoList[i+1].path);
 			}
 			if (lFlag)
 			{
@@ -170,9 +175,9 @@ void trackDuplicates(int *totalCount, int *dupCount)
 				{
 					printf("%s\t", fileInfoList[i].path);
 				}
-				isOnDupStreak = true;
 				printf("%s\t", fileInfoList[i+1].path);
 			}
+			isOnDupStreak = true;
 		}
 		else
 		{
