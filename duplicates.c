@@ -7,17 +7,16 @@
 #include <getopt.h>
 #include <sys/stat.h>
 
-int arraySizeMultiplier = 1; //used to dynamically increase array size
 bool aFlag,fFlag,hFlag,lFlag,mFlag,qFlag = false;//optional flags
 char hArgument[PATH_BUFSIZE];
 FileInfo fArgument2;
 
-char inputPaths[PATH_BUFSIZE][PATH_BUFSIZE];
-
+char inputPaths[ARRAY_BUFSIZE][PATH_BUFSIZE];//holds paths from terminal
 int inputPathsIndex= 0;
 
 FileInfo *fileInfoList;
 int fileInfoListIndex = 0;
+int arraySizeMultiplier = 1; //used to dynamically increase array size
 
 // Combines a file's ID & file system ID to create a unique value
 long int createFileUID(char *filePath)
@@ -32,7 +31,7 @@ long int createFileUID(char *filePath)
 void doubleArraySize(FileInfo **a)
 {
 	*a = realloc(*a,sizeof(FileInfo) * PATH_BUFSIZE * arraySizeMultiplier * 2);
-	arraySizeMultiplier *=2;
+	arraySizeMultiplier *= 2;
 }
 
 //Set optional flags and fill inputPaths[] 
@@ -43,12 +42,12 @@ void setOpts(int argc, char *argv[])
 	{
 		switch (opt)
 		{
-			case 'a': //all files considered including . files
+			case 'a': //Examine all files considered including . files
 				aFlag = true;
 				break;
 			case 'A': //indicates if using advanced options by exiting
 				exit(EXIT_SUCCESS);
-			case 'f'://finds duplicates of argument file. Exits depending on if found
+			case 'f'://Prints duplicates of argument file. Exits depending on if found
 				fFlag = true;
 				FILE *fp = fopen(optarg,"r");
 				if (fp==NULL)
@@ -60,14 +59,15 @@ void setOpts(int argc, char *argv[])
 				strcpy(fArgument2.hash,strSHA2(optarg));
 				fArgument2.fileID = createFileUID(optarg);
 				break;
-			case 'h'://find all files with hash arg. Exits depending on if found
+			case 'h'://Print all files with hash arg. Exits depending on if matches found
 				hFlag = true;
 				strcpy(hArgument,optarg);
 				break;
-			case 'l'://lists duplicates
+			case 'l'://Print all duplicates
 				lFlag = true;
 				break;
-			case 'm'://advanced
+			case 'm':
+				printf("Note: -m flag is not implemented!\n");
 				mFlag = true;
 				break;
 			case 'q'://no printing. Exit depending on if duplicates found
@@ -89,7 +89,7 @@ void setOpts(int argc, char *argv[])
 }
 
 
-// Fills fileInfoList[] with all file/hash pairs, and sets count to the total # of files
+// Fills fileInfoList[] with every file's path, hash, and uid within supplied directory
 void retrieveFileInfo(const char *rootPath)
 {
 	struct dirent *dp;
@@ -111,13 +111,10 @@ void retrieveFileInfo(const char *rootPath)
 				{
 					doubleArraySize(&fileInfoList);
 				}
-
-				//printf("fp :%s\n\nindex %d\tsize %d",fullPath, fileInfoListIndex,ARRAY_BUFSIZE * arraySizeMultiplier);
 				strcpy(fileInfoList[fileInfoListIndex].path, fullPath);
 				strcpy(fileInfoList[fileInfoListIndex].hash, strSHA2(fullPath));
-				//printf("b\n");
-
 				fileInfoList[fileInfoListIndex].fileID = createFileUID(fullPath);
+
 				fileInfoListIndex++;
 				continue; // Don't do directory recursion on a file 
 			}
@@ -127,7 +124,7 @@ void retrieveFileInfo(const char *rootPath)
 	}
 }
 
-// Used by qsort(), compares fileHashPairs and fileID's
+// Used by qsort(), compares fileInfo structs
 int fileInfoCmp(const void *p1, const void *p2)
 {
 	int hashCmp = strcmp(((FileInfo*)p1)->hash,((FileInfo*)p2)->hash);
@@ -146,12 +143,13 @@ int fileInfoCmp(const void *p1, const void *p2)
 // Marks each FileInfo entry as a duplicate or exact file copy
 // Count total & duplicate files, ignoring exact copies
 // May perform an action for each duplicate found, depending on the flags
-void trackDuplicates(int *totalCount, int *dupCount)
+void handleDuplicates(int *totalCount, int *dupCount)
 {
 	bool isOnDupStreak = false;
 	bool fSuccess = false;
 
-	if (fFlag && strcmp(fArgument2.hash,fileInfoList[fileInfoListIndex].hash)==0 && fileInfoList[fileInfoListIndex].fileID != fArgument2.fileID)//doesn't check final index otherwise
+	if (fFlag && strcmp(fArgument2.hash,fileInfoList[fileInfoListIndex].hash)==0
+			&& fileInfoList[fileInfoListIndex].fileID != fArgument2.fileID)//fFlag doesn't check final index otherwise
 	{
 		fSuccess = true;
 		printf("%s\t",fileInfoList[fileInfoListIndex].path);
@@ -160,20 +158,20 @@ void trackDuplicates(int *totalCount, int *dupCount)
 	{
 		*totalCount += 1;
 	}
-	for (int i = 0; i < fileInfoListIndex-1; i++) //Count duplicates
+	for (int i = 0; i < fileInfoListIndex-1; i++)
 	{	
-		if (fileInfoList[i].fileID==fileInfoList[i+1].fileID)//skip identical files from overlapping directories
+		if (fileInfoList[i].fileID==fileInfoList[i+1].fileID)//Skip identical files (either from overlapping directories or soft links)
 		{
 			fileInfoList[i+1].isIdentical = true;
 			continue;
 		}
 		*totalCount += 1;
-		if (fFlag && strcmp(fArgument2.hash,fileInfoList[i].hash)==0 && fileInfoList[i].fileID != fArgument2.fileID)
+		if (fFlag && strcmp(fArgument2.hash,fileInfoList[i].hash)==0 && fileInfoList[i].fileID != fArgument2.fileID)//Has same hash as fArgument
 		{
 			fSuccess = true;
 			printf("%s\n",fileInfoList[i].path);
 		}
-		if (strcmp(fileInfoList[i].hash,fileInfoList[i+1].hash)==0)
+		if (strcmp(fileInfoList[i].hash,fileInfoList[i+1].hash)==0) //Duplicate found
 		{
 			fileInfoList[i+1].isDuplicate = true;
 			*dupCount+=1;
@@ -191,14 +189,14 @@ void trackDuplicates(int *totalCount, int *dupCount)
 			}
 			isOnDupStreak = true;
 		}
-		else
+		else //Not a duplicate
 		{
 			isOnDupStreak = false;
 		}
 	}
 	if (qFlag) exit(EXIT_SUCCESS);
 	if (fSuccess) exit(EXIT_SUCCESS);
-	if ((lFlag && dupCount != 0)) printf("\n");
+	if ((lFlag && *dupCount != 0)) printf("\n");
 	if (fFlag && !fSuccess) exit(EXIT_FAILURE);
 }
 
@@ -239,7 +237,7 @@ int main(int argc, char **argv)
 	}
 	qsort(fileInfoList, fileInfoListIndex, sizeof(FileInfo),fileInfoCmp);//sort fileInfoList[] such that we can track duplicates or identical files
 	if (hFlag) findHashMatch(); //Do -h flag
-	trackDuplicates(&fileCount, &dupCount); 
+	handleDuplicates(&fileCount, &dupCount); 
 	totalFileSize = getTotalFileSize(fileInfoList,fileInfoListIndex);
 	lowestFileSize = getLowestFileSize(fileInfoList,fileInfoListIndex);
 	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n",\
