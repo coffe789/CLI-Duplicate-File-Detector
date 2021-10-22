@@ -16,7 +16,7 @@ char inputPaths[PATH_BUFSIZE][PATH_BUFSIZE];
 
 int inputPathsIndex= 0;
 
-FileInfo *fileInfoList;//[PATH_BUFSIZE];
+FileInfo *fileInfoList;
 int fileInfoListIndex = 0;
 
 // Combines a file's ID & file system ID to create a unique value
@@ -107,18 +107,16 @@ void listFiles(const char *rootPath)
 			DIR *dp2 = opendir(fullPath);
 			if (dp2 ==NULL)	//if it is a file and not a directory
 			{
-				printf("index rn: %d\tarraysize rn: %d\n",fileInfoListIndex,ARRAY_BUFSIZE * arraySizeMultiplier);
-				if (fileInfoListIndex >= (ARRAY_BUFSIZE * arraySizeMultiplier))
+				if (fileInfoListIndex >= (ARRAY_BUFSIZE * arraySizeMultiplier))//ensure array is always big enough
 				{
-					doubleArraySize(&fileInfoList);//debug
-					printf("bouta die cap\n");
-					//arraySizeMultiplier *=2;
-					//doubleArraySize(&fileInfoList);
-					//fileInfoList = realloc(fileInfoList,sizeof(FileInfo) * ARRAY_BUFSIZE * arraySizeMultiplier);
-					printf("deceased\n");
+					doubleArraySize(&fileInfoList);
 				}
+
+				//printf("fp :%s\n\nindex %d\tsize %d",fullPath, fileInfoListIndex,ARRAY_BUFSIZE * arraySizeMultiplier);
 				strcpy(fileInfoList[fileInfoListIndex].path, fullPath);
 				strcpy(fileInfoList[fileInfoListIndex].hash, strSHA2(fullPath));
+				//printf("b\n");
+
 				fileInfoList[fileInfoListIndex].fileID = createFileUID(fullPath);
 				fileInfoListIndex++;
 				continue; // Don't do directory recursion on a file 
@@ -179,7 +177,6 @@ void trackDuplicates(int *totalCount, int *dupCount)
 		{
 			fileInfoList[i+1].isDuplicate = true;
 			*dupCount+=1;
-			//printf("%s\n",fileInfoList[i+1].path);//debug
 			if (qFlag)
 			{
 				exit(EXIT_FAILURE);
@@ -228,10 +225,6 @@ int main(int argc, char **argv)
 	int lowestFileSize;
 	int totalFileSize;
 	fileInfoList = (FileInfo*) malloc(ARRAY_BUFSIZE * sizeof(FileInfo));
-	
-	//arraySizeMultiplier *=4;
-	//printf("mult %d\t init %d\n",arraySizeMultiplier,ARRAY_BUFSIZE);
-	//fileInfoList = realloc(fileInfoList,sizeof(FileInfo) * ARRAY_BUFSIZE * arraySizeMultiplier);//debug
 	
 	if (argc < 2)
 	{

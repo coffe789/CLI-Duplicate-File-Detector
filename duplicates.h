@@ -11,13 +11,14 @@
 #define OPTLIST "Aaf:h:mlq"
 #define EXIT_INVALID_FILE 3
 #define EXIT_INVALID_DIRECTORY 4
-#define ARRAY_BUFSIZE 10
-#define PATH_BUFSIZE 200
+#define ARRAY_BUFSIZE 100
+#define PATH_BUFSIZE 256
+#define HASH_SIZE 256
 
 struct FileInfo
 {
 	char path[PATH_BUFSIZE];
-	char hash[256];		//unique identifier for the contents of a file
+	char hash[HASH_SIZE];		//unique identifier for the contents of a file
 	long int fileID;	//unique identifier for the file itself
 	bool isDuplicate;	//Has same has as another file
 	bool isIdentical;	//Has same fileID as another file

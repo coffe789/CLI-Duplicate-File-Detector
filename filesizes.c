@@ -10,7 +10,7 @@ int getFileSize(char file_name[])
     if (fp == NULL)
     {
         printf("The file '%s' does not exist!\n", file_name);
-        return -1;
+        exit(EXIT_INVALID_FILE);
     }
     fseek(fp, 0L, SEEK_END); //Move stream to end of file
     long int size = ftell(fp); //Get file size
