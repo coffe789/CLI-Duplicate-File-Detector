@@ -33,14 +33,6 @@ void doubleArraySize(FileInfo **a)
 {
 	*a = realloc(*a,sizeof(FileInfo) * PATH_BUFSIZE * arraySizeMultiplier * 2);
 	arraySizeMultiplier *=2;
-//	FileInfo *b = (FileInfo*) malloc(sizeof(FileInfo) * PATH_BUFSIZE * arraySizeMultiplier * 2);
-//	for (int i = 0; i< PATH_BUFSIZE * arraySizeMultiplier; i++)
-//	{
-//		b[i] = a[i];
-//	}
-//	arraySizeMultiplier *= 2;
-//	free(a);
-//	a = b;
 }
 
 //Set optional flags and fill inputPaths[] 
@@ -115,12 +107,15 @@ void listFiles(const char *rootPath)
 			DIR *dp2 = opendir(fullPath);
 			if (dp2 ==NULL)	//if it is a file and not a directory
 			{
-				if (fileInfoListIndex >= PATH_BUFSIZE * arraySizeMultiplier )
+				printf("index rn: %d\tarraysize rn: %d\n",fileInfoListIndex,ARRAY_BUFSIZE * arraySizeMultiplier);
+				if (fileInfoListIndex >= (ARRAY_BUFSIZE * arraySizeMultiplier))
 				{
-					//doubleArraySize(&fileInfoList);//debug
-					printf("here\n");
-					arraySizeMultiplier *=2;
-					fileInfoList = realloc(fileInfoList,sizeof(FileInfo) * ARRAY_BUFSIZE * arraySizeMultiplier);
+					doubleArraySize(&fileInfoList);//debug
+					printf("bouta die cap\n");
+					//arraySizeMultiplier *=2;
+					//doubleArraySize(&fileInfoList);
+					//fileInfoList = realloc(fileInfoList,sizeof(FileInfo) * ARRAY_BUFSIZE * arraySizeMultiplier);
+					printf("deceased\n");
 				}
 				strcpy(fileInfoList[fileInfoListIndex].path, fullPath);
 				strcpy(fileInfoList[fileInfoListIndex].hash, strSHA2(fullPath));
@@ -233,7 +228,11 @@ int main(int argc, char **argv)
 	int lowestFileSize;
 	int totalFileSize;
 	fileInfoList = (FileInfo*) malloc(ARRAY_BUFSIZE * sizeof(FileInfo));
-	printf("early\n");
+	
+	//arraySizeMultiplier *=4;
+	//printf("mult %d\t init %d\n",arraySizeMultiplier,ARRAY_BUFSIZE);
+	//fileInfoList = realloc(fileInfoList,sizeof(FileInfo) * ARRAY_BUFSIZE * arraySizeMultiplier);//debug
+	
 	if (argc < 2)
 	{
 		printf("Incorrect program invocation!\nUsage:\t./duplicates directory_path <-flags>\n");

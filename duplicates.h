@@ -16,7 +16,7 @@
 
 struct FileInfo
 {
-	char path[ARRAY_BUFSIZE];
+	char path[PATH_BUFSIZE];
 	char hash[256];		//unique identifier for the contents of a file
 	long int fileID;	//unique identifier for the file itself
 	bool isDuplicate;	//Has same has as another file
