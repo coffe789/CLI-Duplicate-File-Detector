@@ -9,7 +9,7 @@ int getFileSize(char file_name[])
     FILE *fp = fopen(file_name, "r");
     if (fp == NULL)
     {
-        printf("The file does not exist!\n");
+        printf("The file '%s' does not exist!\n", file_name);
         return -1;
     }
     fseek(fp, 0L, SEEK_END); //Move stream to end of file

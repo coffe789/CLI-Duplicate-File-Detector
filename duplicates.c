@@ -7,14 +7,16 @@
 #include <getopt.h>
 #include <sys/stat.h>
 
+int arraySizeMultiplier = 1; //used to dynamically increase array size
 bool aFlag,fFlag,hFlag,lFlag,mFlag,qFlag = false;//optional flags
-char hArgument[ARRAY_BUFSIZE];
+char hArgument[PATH_BUFSIZE];
 FileInfo fArgument2;
 
-char inputPaths[ARRAY_BUFSIZE][ARRAY_BUFSIZE];
+char inputPaths[PATH_BUFSIZE][PATH_BUFSIZE];
+
 int inputPathsIndex= 0;
 
-FileInfo fileInfoList[ARRAY_BUFSIZE];
+FileInfo *fileInfoList;//[PATH_BUFSIZE];
 int fileInfoListIndex = 0;
 
 // Combines a file's ID & file system ID to create a unique value
@@ -25,6 +27,20 @@ long int createFileUID(char *filePath)
 	long int a = buf.st_ino;
 	int b = buf.st_dev;
 	return (long int) (a * 100 + b);//concatenate values to create unique combination of ino & dev 
+}
+
+void doubleArraySize(FileInfo **a)
+{
+	*a = realloc(*a,sizeof(FileInfo) * PATH_BUFSIZE * arraySizeMultiplier * 2);
+	arraySizeMultiplier *=2;
+//	FileInfo *b = (FileInfo*) malloc(sizeof(FileInfo) * PATH_BUFSIZE * arraySizeMultiplier * 2);
+//	for (int i = 0; i< PATH_BUFSIZE * arraySizeMultiplier; i++)
+//	{
+//		b[i] = a[i];
+//	}
+//	arraySizeMultiplier *= 2;
+//	free(a);
+//	a = b;
 }
 
 //Set optional flags and fill inputPaths[] 
@@ -85,7 +101,7 @@ void setOpts(int argc, char *argv[])
 void listFiles(const char *rootPath)
 {
 	struct dirent *dp;
-	char fullPath[ARRAY_BUFSIZE];
+	char fullPath[PATH_BUFSIZE];
 	DIR *dir = opendir(rootPath);
 
 	while ( (dp = readdir(dir)) != NULL)
@@ -93,16 +109,22 @@ void listFiles(const char *rootPath)
 		if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
 		{
 			if (*(dp->d_name)=='.' && !aFlag) continue; //skip hidden files unless -a
-			strcpy(fullPath,rootPath);
+			strcpy(fullPath,rootPath);//segfault
 			strcat(fullPath,"/");
 			strcat(fullPath, dp->d_name);
 			DIR *dp2 = opendir(fullPath);
 			if (dp2 ==NULL)	//if it is a file and not a directory
 			{
+				if (fileInfoListIndex >= PATH_BUFSIZE * arraySizeMultiplier )
+				{
+					//doubleArraySize(&fileInfoList);//debug
+					printf("here\n");
+					arraySizeMultiplier *=2;
+					fileInfoList = realloc(fileInfoList,sizeof(FileInfo) * ARRAY_BUFSIZE * arraySizeMultiplier);
+				}
 				strcpy(fileInfoList[fileInfoListIndex].path, fullPath);
 				strcpy(fileInfoList[fileInfoListIndex].hash, strSHA2(fullPath));
 				fileInfoList[fileInfoListIndex].fileID = createFileUID(fullPath);
-
 				fileInfoListIndex++;
 				continue; // Don't do directory recursion on a file 
 			}
@@ -210,6 +232,8 @@ int main(int argc, char **argv)
 	int dupCount = 0;
 	int lowestFileSize;
 	int totalFileSize;
+	fileInfoList = (FileInfo*) malloc(ARRAY_BUFSIZE * sizeof(FileInfo));
+	printf("early\n");
 	if (argc < 2)
 	{
 		printf("Incorrect program invocation!\nUsage:\t./duplicates directory_path <-flags>\n");

@@ -11,7 +11,8 @@
 #define OPTLIST "Aaf:h:mlq"
 #define EXIT_INVALID_FILE 3
 #define EXIT_INVALID_DIRECTORY 4
-#define ARRAY_BUFSIZE 2000
+#define ARRAY_BUFSIZE 10
+#define PATH_BUFSIZE 200
 
 struct FileInfo
 {
