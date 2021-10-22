@@ -18,10 +18,10 @@
 struct FileInfo
 {
 	char path[PATH_BUFSIZE];
-	char hash[HASH_SIZE];		//unique identifier for the contents of a file
+	char hash[HASH_SIZE];	//unique identifier for the contents of a file
 	long int fileID;	//unique identifier for the file itself
-	bool isDuplicate;	//Has same has as another file
-	bool isIdentical;	//Has same fileID as another file
+	bool isDuplicate;	//Has same contents as a previous file
+	bool isIdentical;	//Has same fileID as a previous file
 };
 typedef struct FileInfo FileInfo;
 
