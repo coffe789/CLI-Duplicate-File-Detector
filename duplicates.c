@@ -236,8 +236,8 @@ int main(int argc, char **argv)
 		inputPathsIndex-=1;
 	}
 	qsort(fileInfoList, fileInfoListIndex, sizeof(FileInfo),fileInfoCmp);//sort fileInfoList[] such that we can track duplicates or identical files
-	if (hFlag) findHashMatch(); //Do -h flag
 	handleDuplicates(&fileCount, &dupCount); 
+	if (hFlag) findHashMatch(); //Do -h flag
 	totalFileSize = getTotalFileSize(fileInfoList,fileInfoListIndex);
 	lowestFileSize = getLowestFileSize(fileInfoList,fileInfoListIndex);
 	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n",\
