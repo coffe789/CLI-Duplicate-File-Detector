@@ -90,7 +90,7 @@ void setOpts(int argc, char *argv[])
 
 
 // Fills fileInfoList[] with all file/hash pairs, and sets count to the total # of files
-void listFiles(const char *rootPath)
+void retrieveFileInfo(const char *rootPath)
 {
 	struct dirent *dp;
 	char fullPath[PATH_BUFSIZE];
@@ -122,7 +122,7 @@ void listFiles(const char *rootPath)
 				continue; // Don't do directory recursion on a file 
 			}
 			closedir(dp2);
-			listFiles(fullPath);
+			retrieveFileInfo(fullPath);
 		}
 	}
 }
@@ -231,17 +231,17 @@ int main(int argc, char **argv)
 		printf("Incorrect program invocation!\nUsage:\t./duplicates directory_path <-flags>\n");
 		exit(EXIT_FAILURE);
 	}
-	int count = 0;
+	int fileCount = 0;
 	while(inputPathsIndex > 0)//allows use of multiple paths
 	{
-		listFiles(inputPaths[inputPathsIndex-1]);//Fill fileInfoList[]
+		retrieveFileInfo(inputPaths[inputPathsIndex-1]);//Fill fileInfoList[]
 		inputPathsIndex-=1;
 	}
 	qsort(fileInfoList, fileInfoListIndex, sizeof(FileInfo),fileInfoCmp);//sort fileInfoList[] such that we can track duplicates or identical files
 	if (hFlag) findHashMatch(); //Do -h flag
-	trackDuplicates(&count, &dupCount); 
+	trackDuplicates(&fileCount, &dupCount); 
 	totalFileSize = getTotalFileSize(fileInfoList,fileInfoListIndex);
 	lowestFileSize = getLowestFileSize(fileInfoList,fileInfoListIndex);
 	printf("Total number of files:\t\t%d\nNumber of unique files:\t\t%d\nTotal file size:\t\t%d bytes\nSize without duplicates:\t%d bytes\n",\
-		count,count - dupCount,totalFileSize,lowestFileSize);
+		fileCount,fileCount - dupCount,totalFileSize,lowestFileSize);
 }
