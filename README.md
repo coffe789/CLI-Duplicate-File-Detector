@@ -1,4 +1,4 @@
-# CLI-Duplicate-File-Detector
+# CLI Duplicate File Detector
 This is a command line program created for UWA's Systems Programming unit.
 It takes any number of directory paths as arguments, and within the directories detects all files with identical contents (duplicates).
 
