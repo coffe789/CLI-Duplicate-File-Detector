@@ -1,4 +1,4 @@
-# Project2_CITS2002
+# CLI-Duplicate-File-Detector
 This is a command line program created for UWA's Systems Programming unit.
 It takes any number of directory paths as arguments, and within the directories detects all files with identical contents (duplicates).
 
@@ -11,9 +11,9 @@ The program will print:
 
 The program supports a number of optional flags:
 
-- -a 	By default, hidden and configuration files (conventionally those beginning with a '.' character) are not considered by duplicates. Providing the -a option requests that all files be considered. This is similar to the standard Linux utility ls.
+- -a 	by default, hidden and configuration files (conventionally those beginning with a '.' character) are not considered by duplicates. Providing the -a option requests that all files be considered. This is similar to the standard Linux utility ls.
 
-- -A 	This option indicates if the program attempts the advanced version of the project.
+- -A 	this option indicates if the program attempts the advanced version of the project.
 duplicates -A produces no output at all, simply terminating with EXIT_SUCCESS (for advanced) or with EXIT_FAILURE (for basic).
 
 - -f filename 	find and list, one per line, the relative pathnames of all files whose SHA2 hash matches that of the indicated file. The name of the indicated file is not listed.
